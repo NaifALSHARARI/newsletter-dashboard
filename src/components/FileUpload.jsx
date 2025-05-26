@@ -10,12 +10,21 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
   const [previewData, setPreviewData] = useState(null);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   
-  // إزالة useEffect الذي يسبب مسح البيانات عند تغيير الشهر
-  // إذا كنت تريد مسح المعاينة عند تغيير الملف فقط
+  // Local state للشهر المحدد في هذا المكون فقط
+  const [localSelectedMonth, setLocalSelectedMonth] = useState(selectedMonth || '');
+  
+  // تحديث الـ local state عند تغيير selectedMonth من خارج المكون
+  useEffect(() => {
+    if (selectedMonth) {
+      setLocalSelectedMonth(selectedMonth);
+    }
+  }, [selectedMonth]);
+  
+  // Reset preview when file changes (not when month changes)
   useEffect(() => {
     setPreviewData(null);
-    setUploadStatus(''); // مسح رسائل الحالة أيضاً
-  }, [selectedFile]); // إزالة selectedMonth من dependencies
+    setUploadStatus('');
+  }, [selectedFile]);
   
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -23,20 +32,25 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
       setFileName(file.name);
       setSelectedFile(file);
       setUploadStatus(`Selected: ${file.name}`);
-      // مسح المعاينة السابقة عند اختيار ملف جديد
       setPreviewData(null);
     }
   };
 
-  // تحسين دالة التعامل مع تغيير الشهر
+  // معالجة تغيير الشهر بدون إعادة توجيه
   const handleMonthChange = (e) => {
     const newMonth = e.target.value;
-    setSelectedMonth(newMonth);
+    console.log('Month changing in FileUpload:', newMonth);
     
-    // إذا كان هناك معاينة موجودة وملف محدد، اسأل المستخدم إذا كان يريد إعادة المعاينة
+    // تحديث الـ local state فقط
+    setLocalSelectedMonth(newMonth);
+    
+    // مسح رسائل الحالة عند تغيير الشهر
     if (previewData && selectedFile && newMonth) {
       setUploadStatus('Month changed. Click "Preview Data" to see data for the new month.');
     }
+    
+    // لا نستدعي setSelectedMonth هنا لتجنب إعادة التوجيه
+    // سنحديث selectedMonth فقط عند الرفع الفعلي
   };
 
   const handlePreview = async () => {
@@ -45,7 +59,7 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
       return;
     }
     
-    if (!selectedMonth) {
+    if (!localSelectedMonth) {
       setUploadStatus('Please select a month first');
       return;
     }
@@ -54,7 +68,7 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
     setUploadStatus('Processing file for preview...');
     
     try {
-      const data = await readExcelFile(selectedFile, selectedMonth);
+      const data = await readExcelFile(selectedFile, localSelectedMonth);
       setPreviewData(data);
       setUploadStatus('File preview complete. Ready to upload.');
     } catch (error) {
@@ -74,7 +88,7 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
       return;
     }
     
-    if (!selectedMonth) {
+    if (!localSelectedMonth) {
       setUploadStatus('Please select a month first');
       return;
     }
@@ -83,12 +97,15 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
     setUploadStatus('Processing file...');
     
     try {
-      // التأكد من أن البيانات المعاينة تخص الشهر المحدد حالياً
+      // الآن فقط نحديث selectedMonth العام
+      setSelectedMonth(localSelectedMonth);
+      
+      // Use preview data if available, otherwise process the file again
       if (previewData) {
-        onDataProcessed(previewData, selectedMonth);
+        onDataProcessed(previewData, localSelectedMonth);
       } else {
-        const processedData = await readExcelFile(selectedFile, selectedMonth);
-        onDataProcessed(processedData, selectedMonth);
+        const processedData = await readExcelFile(selectedFile, localSelectedMonth);
+        onDataProcessed(processedData, localSelectedMonth);
       }
       
       setIsUploading(false);
@@ -120,10 +137,10 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
         <h2 className="section-title">Upload Newsletter Excel File</h2>
         
         <div className="upload-form">
-          {/* Month selector */}
+          {/* Month selector - يستخدم localSelectedMonth */}
           <div className="month-selector" style={{ marginBottom: '1rem' }}>
             <label 
-              htmlFor="month-select" 
+              htmlFor="file-upload-month-select" 
               style={{ 
                 display: 'block', 
                 marginBottom: '0.5rem',
@@ -134,8 +151,8 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
               Select Month:
             </label>
             <select 
-              id="month-select"
-              value={selectedMonth}
+              id="file-upload-month-select"
+              value={localSelectedMonth}
               onChange={handleMonthChange}
               style={{ 
                 width: '100%',
@@ -201,8 +218,8 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
             <div style={{ flex: '1' }}>
               <button 
                 onClick={handlePreview}
-                disabled={isLoadingPreview || !fileName || !selectedMonth}
-                className={`upload-button ${isLoadingPreview || !fileName || !selectedMonth ? 'disabled' : ''}`}
+                disabled={isLoadingPreview || !fileName || !localSelectedMonth}
+                className={`upload-button ${isLoadingPreview || !fileName || !localSelectedMonth ? 'disabled' : ''}`}
                 style={{ 
                   width: '100%', 
                   backgroundColor: 'var(--info-color)',
@@ -233,8 +250,8 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
             <div className="upload-button-wrapper" style={{ flex: '1' }}>
               <button 
                 onClick={handleUpload}
-                disabled={isUploading || !fileName || !selectedMonth}
-                className={`upload-button ${isUploading || !fileName || !selectedMonth ? 'disabled' : ''}`}
+                disabled={isUploading || !fileName || !localSelectedMonth}
+                className={`upload-button ${isUploading || !fileName || !localSelectedMonth ? 'disabled' : ''}`}
                 style={{ width: '100%' }}
               >
                 {isUploading ? (
@@ -303,7 +320,7 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
               borderBottom: '1px solid rgba(76, 175, 80, 0.3)',
               paddingBottom: '0.5rem'
             }}>
-              Data Preview ({selectedMonth})
+              Data Preview ({localSelectedMonth})
             </h3>
             
             <div style={{ 
