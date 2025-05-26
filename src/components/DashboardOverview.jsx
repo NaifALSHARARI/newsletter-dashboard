@@ -30,13 +30,6 @@ const DashboardOverview = ({ data }) => {
     return String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
   
-  // Get statistics data from rawStats
-  const rawStats = data.rawStats || {};
-  const sumVolumeTraded = rawStats["Sum Volume Traded"] || 0;
-  const sumValueTraded = rawStats["Sum Value Traded"] || 0;
-  const numCompanies = rawStats["Number of Companies"] || 0;
-  const numDeals = rawStats["Number of Deals"] || 0;
-  
   // Get selected month from data or use default
   const selectedMonth = data.selectedMonth || "Mar";
   const statsTitle = `${selectedMonth.toUpperCase()} 2025 STATISTICS`;

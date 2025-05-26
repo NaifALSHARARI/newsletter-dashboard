@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import DashboardOverview from '../components/DashboardOverview';
 import ExcelAnalyzer from '../components/ExcelAnalyzer';
 import FileUpload from '../components/FileUpload';
 import ReportsTab from '../components/ReportsTab';
@@ -18,15 +17,11 @@ const Dashboard = ({
   const [activeTab, setActiveTab] = useState('dashboard');
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [uploadedData, setUploadedData] = useState(null);
-  const [hasUploadedFile, setHasUploadedFile] = useState(false);
 
   // تحديث البيانات عند تغيير الشهر المحدد
   useEffect(() => {
     if (selectedMonth && globalData[selectedMonth]) {
-      setUploadedData(globalData[selectedMonth]);
       setDashboardData(globalData[selectedMonth]);
-      setHasUploadedFile(true);
     }
   }, [selectedMonth, globalData]);
 
@@ -45,8 +40,6 @@ const Dashboard = ({
     
     // تحديث البيانات المحلية
     setDashboardData(newData);
-    setUploadedData(newData);
-    setHasUploadedFile(true);
     
     // الانتقال إلى صفحة تحليل البيانات بعد الرفع
     setIsLoading(true);
