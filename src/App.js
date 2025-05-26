@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Dashboard from './pages/Dashboard';
 import databaseService from './services/databaseService';
 import './dashboard.css';
@@ -10,24 +10,10 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // تحميل البيانات عند بدء التطبيق
-  useEffect(() => {
-    loadInitialData();
-    
-    // الاشتراك في التغييرات في الوقت الفعلي
-    const unsubscribe = databaseService.subscribeToChanges((data) => {
-      console.log('تم استلام تحديث من Firebase:', data);
-      setGlobalData(data);
-    });
-
-    // تنظيف الاشتراك عند إنهاء المكون
-    return () => unsubscribe();
-  }, []);
-
   /**
    * تحميل البيانات الأولية من Firebase
    */
-  const loadInitialData = async () => {
+  const loadInitialData = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -48,7 +34,21 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedMonth]);
+
+  // تحميل البيانات عند بدء التطبيق
+  useEffect(() => {
+    loadInitialData();
+    
+    // الاشتراك في التغييرات في الوقت الفعلي
+    const unsubscribe = databaseService.subscribeToChanges((data) => {
+      console.log('تم استلام تحديث من Firebase:', data);
+      setGlobalData(data);
+    });
+
+    // تنظيف الاشتراك عند إنهاء المكون
+    return () => unsubscribe();
+  }, [loadInitialData]);
 
   /**
    * حفظ بيانات شهر جديد
@@ -88,17 +88,17 @@ function App() {
    * @param {string} month - الشهر
    * @returns {Object|null}
    */
-  const getDataByMonth = (month) => {
+  const getDataByMonth = useCallback((month) => {
     return globalData[month] || null;
-  };
+  }, [globalData]);
 
   /**
    * الحصول على قائمة الأشهر المتاحة
    * @returns {Array}
    */
-  const getAvailableMonths = () => {
+  const getAvailableMonths = useCallback(() => {
     return Object.keys(globalData).sort();
-  };
+  }, [globalData]);
 
   /**
    * حذف بيانات شهر معين

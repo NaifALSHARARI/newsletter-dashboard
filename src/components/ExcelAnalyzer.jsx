@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import './ExcelAnalyzer.css';
 
@@ -25,6 +25,155 @@ const ExcelAnalyzer = ({
   
   // Available months for the dropdown
   const availableMonths = getAvailableMonths();
+
+  // Extract top companies by value from data
+  const loadTopValueCompanies = useCallback((data) => {
+    console.log("Loading top value companies...");
+    
+    // Check if topValueCompanies exists
+    if (!data.rawStats.topValueCompanies || 
+        !Array.isArray(data.rawStats.topValueCompanies) || 
+        data.rawStats.topValueCompanies.length === 0) {
+      console.warn("No top VALUE companies data found");
+      setChartData(prevChartData => ({
+        ...prevChartData,
+        title: 'TOP COMPANIES BY VALUE',
+        data: [],
+        xAxisKey: 'name',
+        yAxisKey: 'value',
+        yAxisLabel: 'Value Traded ($)'
+      }));
+      return;
+    }
+    
+    // Get companies from the specific VALUE section
+    const valueCompanies = data.rawStats.topValueCompanies.map(company => ({
+      name: company.name,
+      value: parseFloat(String(company.value || 0).replace(/,/g, '')) || 0
+    }));
+    
+    console.log("Value companies for chart:", valueCompanies);
+    
+    // Update chart data
+    setChartData(prevChartData => ({
+      ...prevChartData,
+      title: 'TOP COMPANIES BY VALUE',
+      data: valueCompanies,
+      xAxisKey: 'name',
+      yAxisKey: 'value',
+      yAxisLabel: 'Value Traded ($)'
+    }));
+  }, []);
+  
+  // Extract top companies by volume from data
+  const loadTopVolumeCompanies = useCallback((data) => {
+    console.log("Loading top volume companies...");
+    
+    // Check if topVolumeCompanies exists
+    if (!data.rawStats.topVolumeCompanies || 
+        !Array.isArray(data.rawStats.topVolumeCompanies) || 
+        data.rawStats.topVolumeCompanies.length === 0) {
+      console.warn("No top VOLUME companies data found");
+      setChartData(prevChartData => ({
+        ...prevChartData,
+        title: 'TOP COMPANIES BY VOLUME',
+        data: [],
+        xAxisKey: 'name',
+        yAxisKey: 'volume',
+        yAxisLabel: 'Volume Traded'
+      }));
+      return;
+    }
+    
+    // Get companies from the specific VOLUME section
+    const volumeCompanies = data.rawStats.topVolumeCompanies.map(company => ({
+      name: company.name,
+      volume: parseFloat(String(company.volume || 0).replace(/,/g, '')) || 0
+    }));
+    
+    console.log("Volume companies for chart:", volumeCompanies);
+    
+    // Update chart data
+    setChartData(prevChartData => ({
+      ...prevChartData,
+      title: 'TOP COMPANIES BY VOLUME',
+      data: volumeCompanies,
+      xAxisKey: 'name',
+      yAxisKey: 'volume',
+      yAxisLabel: 'Volume Traded'
+    }));
+  }, []);
+  
+  // Extract key statistics from data
+  const loadKeyStatistics = useCallback((data) => {
+    console.log("Loading key statistics...");
+    
+    if (!data.rawStats) {
+      console.warn("No statistics data found");
+      setChartData(prevChartData => ({
+        ...prevChartData,
+        title: 'KEY STATISTICS',
+        data: [],
+        xAxisKey: 'name',
+        yAxisKey: 'value',
+        yAxisLabel: 'Value'
+      }));
+      return;
+    }
+    
+    // Extract statistics that can be visualized
+    const stats = [];
+    for (const key in data.rawStats) {
+      // Skip company arrays and non-numeric values
+      if (key === 'topValueCompanies' || key === 'topVolumeCompanies' || 
+          typeof data.rawStats[key] === 'object') continue;
+      
+      const value = data.rawStats[key];
+      if (value !== undefined && value !== null) {
+        // Try to convert to number
+        const numValue = parseFloat(String(value).replace(/,/g, ''));
+        if (!isNaN(numValue)) {
+          stats.push({
+            name: key,
+            value: numValue
+          });
+        }
+      }
+    }
+    
+    console.log("Statistics for chart:", stats);
+    
+    // Update chart data with statistics
+    setChartData(prevChartData => ({
+      ...prevChartData,
+      title: 'KEY STATISTICS',
+      data: stats.slice(0, 8), // Limit to avoid cluttered chart
+      xAxisKey: 'name',
+      yAxisKey: 'value',
+      yAxisLabel: 'Value'
+    }));
+  }, []);
+
+  // Initialize chart data based on selected data type
+  const initializeChartData = useCallback((dataType, data = currentData) => {
+    if (!data || !data.rawStats) return;
+    
+    console.log(`Initializing chart data for ${dataType}`);
+    
+    switch(dataType) {
+      case 'topValue':
+        loadTopValueCompanies(data);
+        break;
+      case 'topVolume':
+        loadTopVolumeCompanies(data);
+        break;
+      case 'statistics':
+        loadKeyStatistics(data);
+        break;
+      default:
+        loadTopValueCompanies(data); // Default to value
+    }
+  }, [currentData, loadTopValueCompanies, loadTopVolumeCompanies, loadKeyStatistics]);
   
   // DEBUG: Log the structure of data
   useEffect(() => {
@@ -57,163 +206,14 @@ const ExcelAnalyzer = ({
     } else {
       setCurrentData(null);
     }
-  }, [selectedMonth, globalData]);
-  
-  // Initialize chart data based on selected data type
-  const initializeChartData = (dataType, data = currentData) => {
-    if (!data || !data.rawStats) return;
-    
-    console.log(`Initializing chart data for ${dataType}`);
-    
-    switch(dataType) {
-      case 'topValue':
-        loadTopValueCompanies(data);
-        break;
-      case 'topVolume':
-        loadTopVolumeCompanies(data);
-        break;
-      case 'statistics':
-        loadKeyStatistics(data);
-        break;
-      default:
-        loadTopValueCompanies(data); // Default to value
-    }
-  };
-  
-  // Extract top companies by value from data
-  const loadTopValueCompanies = (data) => {
-    console.log("Loading top value companies...");
-    
-    // Check if topValueCompanies exists
-    if (!data.rawStats.topValueCompanies || 
-        !Array.isArray(data.rawStats.topValueCompanies) || 
-        data.rawStats.topValueCompanies.length === 0) {
-      console.warn("No top VALUE companies data found");
-      setChartData({
-        ...chartData,
-        title: 'TOP COMPANIES BY VALUE',
-        data: [],
-        xAxisKey: 'name',
-        yAxisKey: 'value',
-        yAxisLabel: 'Value Traded ($)'
-      });
-      return;
-    }
-    
-    // Get companies from the specific VALUE section
-    const valueCompanies = data.rawStats.topValueCompanies.map(company => ({
-      name: company.name,
-      value: parseFloat(String(company.value || 0).replace(/,/g, '')) || 0
-    }));
-    
-    console.log("Value companies for chart:", valueCompanies);
-    
-    // Update chart data
-    setChartData({
-      ...chartData,
-      title: 'TOP COMPANIES BY VALUE',
-      data: valueCompanies,
-      xAxisKey: 'name',
-      yAxisKey: 'value',
-      yAxisLabel: 'Value Traded ($)'
-    });
-  };
-  
-  // Extract top companies by volume from data
-  const loadTopVolumeCompanies = (data) => {
-    console.log("Loading top volume companies...");
-    
-    // Check if topVolumeCompanies exists
-    if (!data.rawStats.topVolumeCompanies || 
-        !Array.isArray(data.rawStats.topVolumeCompanies) || 
-        data.rawStats.topVolumeCompanies.length === 0) {
-      console.warn("No top VOLUME companies data found");
-      setChartData({
-        ...chartData,
-        title: 'TOP COMPANIES BY VOLUME',
-        data: [],
-        xAxisKey: 'name',
-        yAxisKey: 'volume',
-        yAxisLabel: 'Volume Traded'
-      });
-      return;
-    }
-    
-    // Get companies from the specific VOLUME section
-    const volumeCompanies = data.rawStats.topVolumeCompanies.map(company => ({
-      name: company.name,
-      volume: parseFloat(String(company.volume || 0).replace(/,/g, '')) || 0
-    }));
-    
-    console.log("Volume companies for chart:", volumeCompanies);
-    
-    // Update chart data
-    setChartData({
-      ...chartData,
-      title: 'TOP COMPANIES BY VOLUME',
-      data: volumeCompanies,
-      xAxisKey: 'name',
-      yAxisKey: 'volume',
-      yAxisLabel: 'Volume Traded'
-    });
-  };
-  
-  // Extract key statistics from data
-  const loadKeyStatistics = (data) => {
-    console.log("Loading key statistics...");
-    
-    if (!data.rawStats) {
-      console.warn("No statistics data found");
-      setChartData({
-        ...chartData,
-        title: 'KEY STATISTICS',
-        data: [],
-        xAxisKey: 'name',
-        yAxisKey: 'value',
-        yAxisLabel: 'Value'
-      });
-      return;
-    }
-    
-    // Extract statistics that can be visualized
-    const stats = [];
-    for (const key in data.rawStats) {
-      // Skip company arrays and non-numeric values
-      if (key === 'topValueCompanies' || key === 'topVolumeCompanies' || 
-          typeof data.rawStats[key] === 'object') continue;
-      
-      const value = data.rawStats[key];
-      if (value !== undefined && value !== null) {
-        // Try to convert to number
-        const numValue = parseFloat(String(value).replace(/,/g, ''));
-        if (!isNaN(numValue)) {
-          stats.push({
-            name: key,
-            value: numValue
-          });
-        }
-      }
-    }
-    
-    console.log("Statistics for chart:", stats);
-    
-    // Update chart data with statistics
-    setChartData({
-      ...chartData,
-      title: 'KEY STATISTICS',
-      data: stats.slice(0, 8), // Limit to avoid cluttered chart
-      xAxisKey: 'name',
-      yAxisKey: 'value',
-      yAxisLabel: 'Value'
-    });
-  };
+  }, [selectedMonth, globalData, getDataByMonth, initializeChartData]);
   
   // Handle chart type change (bar/line)
   const handleChartTypeChange = (type) => {
-    setChartData({
-      ...chartData,
+    setChartData(prevChartData => ({
+      ...prevChartData,
       type: type
-    });
+    }));
   };
   
   // Handle data category change
