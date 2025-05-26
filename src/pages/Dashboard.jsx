@@ -4,7 +4,7 @@ import FileUpload from '../components/FileUpload';
 import ReportsTab from '../components/ReportsTab';
 
 /**
- * مكون Dashboard الرئيسي للتطبيق مع إدارة البيانات حسب الشهر
+ * Main Dashboard component for the application with monthly data management
  */
 const Dashboard = ({ 
   globalData, 
@@ -18,30 +18,30 @@ const Dashboard = ({
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // تحديث البيانات عند تغيير الشهر المحدد
+  // Update data when selected month changes
   useEffect(() => {
     if (selectedMonth && globalData[selectedMonth]) {
       setDashboardData(globalData[selectedMonth]);
     }
   }, [selectedMonth, globalData]);
 
-  // معالجة البيانات المرفوعة
+  // Handle processed data
   const handleDataProcessed = (newData, month) => {
-    console.log('تم استلام البيانات المعالجة:', newData, 'للشهر:', month);
+    console.log('Processed data received:', newData, 'for month:', month);
     
-    // التأكد من وجود البيانات المطلوبة
+    // Ensure required data exists
     if (!newData || !newData.monthlyData || !newData.tradePerformance || !newData.topNews) {
-      console.error('البيانات المستلمة غير مكتملة:', newData);
+      console.error('Received incomplete data:', newData);
       return;
     }
     
-    // حفظ البيانات حسب الشهر
+    // Store data by month
     storeDataByMonth(month, newData);
     
-    // تحديث البيانات المحلية
+    // Update local data
     setDashboardData(newData);
     
-    // الانتقال إلى صفحة تحليل البيانات بعد الرفع
+    // Navigate to data analysis after upload
     setIsLoading(true);
     setTimeout(() => {
       setActiveTab('analysis');
@@ -55,10 +55,10 @@ const Dashboard = ({
     
     return (
       <div className="main-dashboard-content">
-        {/* عرض ملخص البيانات المرفوعة */}
+        {/* Display uploaded data summary */}
         {availableMonths.length > 0 && (
           <div className="dashboard-card full-width uploaded-data-summary">
-            <h3>📋 ملخص البيانات المرفوعة</h3>
+            <h3>📋 Uploaded Data Summary</h3>
             <div className="uploaded-months-grid">
               {availableMonths.map(month => {
                 const monthData = getDataByMonth(month);
@@ -67,19 +67,19 @@ const Dashboard = ({
                     <h4>{month} 2025</h4>
                     <div className="month-stats">
                       <div className="stat-item">
-                        <span className="stat-label">عدد الصفقات</span>
+                        <span className="stat-label">Number of Deals</span>
                         <span className="stat-value">
                           {monthData?.rawStats?.["Number of Deals"] || "N/A"}
                         </span>
                       </div>
                       <div className="stat-item">
-                        <span className="stat-label">قيمة التداول</span>
+                        <span className="stat-label">Trading Value</span>
                         <span className="stat-value">
                           {monthData?.rawStats?.["Sum Value Traded"] || "N/A"}
                         </span>
                       </div>
                       <div className="stat-item">
-                        <span className="stat-label">عدد الشركات</span>
+                        <span className="stat-label">Number of Companies</span>
                         <span className="stat-value">
                           {monthData?.rawStats?.["Number of Companies"] || "N/A"}
                         </span>
@@ -92,7 +92,7 @@ const Dashboard = ({
                         setActiveTab('analysis');
                       }}
                     >
-                      عرض التفاصيل
+                      View Details
                     </button>
                   </div>
                 );
@@ -104,33 +104,33 @@ const Dashboard = ({
         {/* News and Market Overview */}
         <div className="dashboard-grid">
           <div className="dashboard-card news-card">
-            <h3>📈 أخبار التداول اليوم</h3>
+            <h3>📈 Today's Trading News</h3>
             <ul className="news-list">
-              <li className="news-item">السوق السعودي يسجل ارتفاعاً بنسبة 2.5% في تداولات اليوم</li>
-              <li className="news-item">أرامكو تعلن عن نتائج قوية للربع الماضي</li>
-              <li className="news-item">قطاع البنوك يتصدر المكاسب بارتفاع 3.2%</li>
-              <li className="news-item">تداول أكثر من 150 مليون سهم بقيمة 4.2 مليار ريال</li>
-              <li className="news-item">المؤشر العام يغلق عند مستوى 12,850 نقطة</li>
+              <li className="news-item">Saudi market records 2.5% increase in today's trading</li>
+              <li className="news-item">Aramco announces strong results for the last quarter</li>
+              <li className="news-item">Banking sector leads gains with 3.2% increase</li>
+              <li className="news-item">Over 150 million shares traded worth 4.2 billion SAR</li>
+              <li className="news-item">General index closes at 12,850 points</li>
             </ul>
           </div>
 
           <div className="dashboard-card market-overview">
-            <h3>📊 نظرة عامة على السوق</h3>
+            <h3>📊 Market Overview</h3>
             <div className="market-stats">
               <div className="stat-item">
-                <span className="stat-label">المؤشر العام</span>
+                <span className="stat-label">General Index</span>
                 <span className="stat-value positive">12,850.25 ↗</span>
               </div>
               <div className="stat-item">
-                <span className="stat-label">حجم التداول</span>
-                <span className="stat-value">150.2 مليون سهم</span>
+                <span className="stat-label">Trading Volume</span>
+                <span className="stat-value">150.2 million shares</span>
               </div>
               <div className="stat-item">
-                <span className="stat-label">قيمة التداول</span>
-                <span className="stat-value">4.2 مليار ريال</span>
+                <span className="stat-label">Trading Value</span>
+                <span className="stat-value">4.2 billion SAR</span>
               </div>
               <div className="stat-item">
-                <span className="stat-label">عدد الصفقات</span>
+                <span className="stat-label">Number of Deals</span>
                 <span className="stat-value">285,400</span>
               </div>
             </div>
@@ -139,37 +139,37 @@ const Dashboard = ({
 
         <div className="dashboard-grid">
           <div className="dashboard-card analysis-card">
-            <h3>🔍 تحليل السوق</h3>
+            <h3>🔍 Market Analysis</h3>
             <div className="analysis-content">
-              <p><strong>الاتجاه العام:</strong> صاعد بقوة</p>
-              <p><strong>مستوى المقاومة:</strong> 12,900 نقطة</p>
-              <p><strong>مستوى الدعم:</strong> 12,700 نقطة</p>
-              <p><strong>القطاعات الرابحة:</strong> البنوك، البتروكيماويات، التأمين</p>
-              <p><strong>القطاعات الخاسرة:</strong> العقارات، الاتصالات</p>
+              <p><strong>General Trend:</strong> Strongly bullish</p>
+              <p><strong>Resistance Level:</strong> 12,900 points</p>
+              <p><strong>Support Level:</strong> 12,700 points</p>
+              <p><strong>Winning Sectors:</strong> Banks, Petrochemicals, Insurance</p>
+              <p><strong>Losing Sectors:</strong> Real Estate, Telecommunications</p>
             </div>
           </div>
 
           <div className="dashboard-card top-stocks">
-            <h3>🏆 أفضل الأسهم</h3>
+            <h3>🏆 Top Stocks</h3>
             <div className="stocks-list">
               <div className="stock-item">
-                <span className="stock-name">أرامكو السعودية</span>
+                <span className="stock-name">Saudi Aramco</span>
                 <span className="stock-change positive">+2.8%</span>
               </div>
               <div className="stock-item">
-                <span className="stock-name">البنك الأهلي</span>
+                <span className="stock-name">National Bank</span>
                 <span className="stock-change positive">+3.5%</span>
               </div>
               <div className="stock-item">
-                <span className="stock-name">سابك</span>
+                <span className="stock-name">SABIC</span>
                 <span className="stock-change positive">+1.9%</span>
               </div>
               <div className="stock-item">
-                <span className="stock-name">مصرف الراجحي</span>
+                <span className="stock-name">Al Rajhi Bank</span>
                 <span className="stock-change positive">+2.1%</span>
               </div>
               <div className="stock-item">
-                <span className="stock-name">معادن</span>
+                <span className="stock-name">Ma'aden</span>
                 <span className="stock-change negative">-1.3%</span>
               </div>
             </div>
@@ -177,19 +177,19 @@ const Dashboard = ({
         </div>
 
         <div className="dashboard-card full-width">
-          <h3>💡 نصائح وتوصيات</h3>
+          <h3>💡 Tips and Recommendations</h3>
           <div className="tips-grid">
             <div className="tip-item">
-              <h4>استراتيجية الاستثمار</h4>
-              <p>التركيز على الأسهم ذات الأساسيات القوية في القطاعات الدفاعية</p>
+              <h4>Investment Strategy</h4>
+              <p>Focus on stocks with strong fundamentals in defensive sectors</p>
             </div>
             <div className="tip-item">
-              <h4>إدارة المخاطر</h4>
-              <p>وضع أوامر وقف الخسارة عند مستويات الدعم المحددة</p>
+              <h4>Risk Management</h4>
+              <p>Set stop-loss orders at specified support levels</p>
             </div>
             <div className="tip-item">
-              <h4>الفرص المتاحة</h4>
-              <p>قطاع البنوك يظهر إشارات إيجابية قوية للاستثمار طويل المدى</p>
+              <h4>Available Opportunities</h4>
+              <p>Banking sector shows strong positive signals for long-term investment</p>
             </div>
           </div>
         </div>
@@ -197,13 +197,13 @@ const Dashboard = ({
         {/* Call to Action if no data uploaded */}
         {availableMonths.length === 0 && (
           <div className="dashboard-card full-width cta-card">
-            <h3>🚀 ابدأ بتحليل بياناتك</h3>
-            <p>لا توجد بيانات مرفوعة حتى الآن. ابدأ برفع ملف Excel الخاص بالنشرة الإخبارية لتحليل البيانات.</p>
+            <h3>🚀 Start Analyzing Your Data</h3>
+            <p>No data uploaded yet. Start by uploading your newsletter Excel file to analyze the data.</p>
             <button 
               className="cta-button"
               onClick={() => setActiveTab('upload')}
             >
-              رفع البيانات الآن
+              Upload Data Now
             </button>
           </div>
         )}
