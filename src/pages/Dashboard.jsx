@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ExcelAnalyzer from '../components/ExcelAnalyzer';
 import FileUpload from '../components/FileUpload';
 import ReportsTab from '../components/ReportsTab';
 
 /**
- * Main Dashboard component for the application with monthly data management
+ * Dashboard محدث لعرض نفس أسماء الحقول في ExcelAnalyzer
  */
 const Dashboard = ({ 
   globalData, 
@@ -18,44 +18,66 @@ const Dashboard = ({
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Update data when selected month changes
+  // تحديث البيانات عند تغيير الشهر المحدد
   useEffect(() => {
     if (selectedMonth && globalData[selectedMonth]) {
-      setDashboardData(globalData[selectedMonth]);
+      const timeoutId = setTimeout(() => {
+        setDashboardData(globalData[selectedMonth]);
+      }, 0);
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [selectedMonth, globalData]);
 
-  // Handle processed data
-  const handleDataProcessed = (newData, month) => {
+  // معالجة البيانات المرفوعة
+  const handleDataProcessed = useCallback((newData, month) => {
     console.log('Processed data received:', newData, 'for month:', month);
     
-    // Ensure required data exists
     if (!newData || !newData.monthlyData || !newData.tradePerformance || !newData.topNews) {
       console.error('Received incomplete data:', newData);
       return;
     }
     
-    // Store data by month
     storeDataByMonth(month, newData);
     
-    // Update local data
-    setDashboardData(newData);
+    requestAnimationFrame(() => {
+      setDashboardData(newData);
+    });
     
-    // Navigate to data analysis after upload
     setIsLoading(true);
     setTimeout(() => {
       setActiveTab('analysis');
       setIsLoading(false);
     }, 800);
-  };
+  }, [storeDataByMonth]);
 
-  // Main Dashboard Content
-  const renderMainDashboard = () => {
+  // تنسيق الأرقام للعرض
+  const formatNumber = useCallback((num) => {
+    if (!num) return "N/A";
+    const number = parseFloat(num.toString().replace(/,/g, ''));
+    if (number >= 1000000000) {
+      return (number / 1000000000).toFixed(1) + 'B';
+    } else if (number >= 1000000) {
+      return (number / 1000000).toFixed(1) + 'M';
+    } else if (number >= 1000) {
+      return (number / 1000).toFixed(1) + 'K';
+    }
+    return number.toLocaleString();
+  }, []);
+
+  // الحصول على قيمة الإحصائية من rawStats
+  const getStatValue = useCallback((monthData, statKey) => {
+    if (!monthData || !monthData.rawStats) return "N/A";
+    return monthData.rawStats[statKey] || "N/A";
+  }, []);
+
+  // محتوى Dashboard الرئيسي مع أسماء الحقول الصحيحة
+  const renderMainDashboard = useCallback(() => {
     const availableMonths = getAvailableMonths();
     
     return (
       <div className="main-dashboard-content">
-        {/* Display uploaded data summary */}
+        {/* ملخص البيانات المرفوعة - محدث ليطابق ExcelAnalyzer */}
         {availableMonths.length > 0 && (
           <div className="dashboard-card full-width uploaded-data-summary">
             <h3>📋 Uploaded Data Summary</h3>
@@ -66,22 +88,46 @@ const Dashboard = ({
                   <div key={month} className="month-summary-card">
                     <h4>{month} 2025</h4>
                     <div className="month-stats">
+                      {/* نفس أسماء الحقول الموجودة في ExcelAnalyzer */}
                       <div className="stat-item">
-                        <span className="stat-label">Number of Deals</span>
+                        <span className="stat-label">Average Volume Traded</span>
                         <span className="stat-value">
-                          {monthData?.rawStats?.["Number of Deals"] || "N/A"}
+                          {formatNumber(getStatValue(monthData, "Average Volume Traded"))}
                         </span>
                       </div>
+                      
                       <div className="stat-item">
-                        <span className="stat-label">Trading Value</span>
+                        <span className="stat-label">Average Value Traded</span>
                         <span className="stat-value">
-                          {monthData?.rawStats?.["Sum Value Traded"] || "N/A"}
+                          {formatNumber(getStatValue(monthData, "Average Value Traded"))}
                         </span>
                       </div>
+                      
+                      <div className="stat-item">
+                        <span className="stat-label">Sum Volume Traded</span>
+                        <span className="stat-value">
+                          {formatNumber(getStatValue(monthData, "Sum Volume Traded"))}
+                        </span>
+                      </div>
+                      
+                      <div className="stat-item">
+                        <span className="stat-label">Sum Value Traded</span>
+                        <span className="stat-value">
+                          {formatNumber(getStatValue(monthData, "Sum Value Traded"))}
+                        </span>
+                      </div>
+                      
                       <div className="stat-item">
                         <span className="stat-label">Number of Companies</span>
                         <span className="stat-value">
-                          {monthData?.rawStats?.["Number of Companies"] || "N/A"}
+                          {formatNumber(getStatValue(monthData, "Number of Companies"))}
+                        </span>
+                      </div>
+                      
+                      <div className="stat-item">
+                        <span className="stat-label">Number of Deals</span>
+                        <span className="stat-value">
+                          {formatNumber(getStatValue(monthData, "Number of Deals"))}
                         </span>
                       </div>
                     </div>
@@ -101,104 +147,100 @@ const Dashboard = ({
           </div>
         )}
 
-        {/* News and Market Overview */}
-        <div className="dashboard-grid">
-          <div className="dashboard-card news-card">
-            <h3>📈 Today's Trading News</h3>
-            <ul className="news-list">
-              <li className="news-item">Saudi market records 2.5% increase in today's trading</li>
-              <li className="news-item">Aramco announces strong results for the last quarter</li>
-              <li className="news-item">Banking sector leads gains with 3.2% increase</li>
-              <li className="news-item">Over 150 million shares traded worth 4.2 billion SAR</li>
-              <li className="news-item">General index closes at 12,850 points</li>
-            </ul>
-          </div>
+        {/* باقي محتوى Dashboard */}
+        <div className="dashboard-card news-card">
+          <h3>📈 Today's Trading News</h3>
+          <ul className="news-list">
+            <li className="news-item">Saudi market records 2.5% increase in today's trading</li>
+            <li className="news-item">Aramco announces strong results for Q4</li>
+            <li className="news-item">Banking sector leads gains with 3.2% increase</li>
+            <li className="news-item">150M shares traded worth 4.2B SAR</li>
+            <li className="news-item">General index closes at 12,850 points</li>
+          </ul>
+        </div>
 
-          <div className="dashboard-card market-overview">
-            <h3>📊 Market Overview</h3>
-            <div className="market-stats">
-              <div className="stat-item">
-                <span className="stat-label">General Index</span>
-                <span className="stat-value positive">12,850.25 ↗</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Trading Volume</span>
-                <span className="stat-value">150.2 million shares</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Trading Value</span>
-                <span className="stat-value">4.2 billion SAR</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Number of Deals</span>
-                <span className="stat-value">285,400</span>
-              </div>
+        <div className="dashboard-card market-overview">
+          <h3>📊 Market Overview</h3>
+          <div className="market-stats">
+            <div className="stat-item">
+              <span className="stat-label">General Index</span>
+              <span className="stat-value positive">12,850.25 ↗</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Trading Volume</span>
+              <span className="stat-value">150.2M shares</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Trading Value</span>
+              <span className="stat-value">4.2B SAR</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Number of Deals</span>
+              <span className="stat-value">285,400</span>
             </div>
           </div>
         </div>
 
-        <div className="dashboard-grid">
-          <div className="dashboard-card analysis-card">
-            <h3>🔍 Market Analysis</h3>
-            <div className="analysis-content">
-              <p><strong>General Trend:</strong> Strongly bullish</p>
-              <p><strong>Resistance Level:</strong> 12,900 points</p>
-              <p><strong>Support Level:</strong> 12,700 points</p>
-              <p><strong>Winning Sectors:</strong> Banks, Petrochemicals, Insurance</p>
-              <p><strong>Losing Sectors:</strong> Real Estate, Telecommunications</p>
-            </div>
+        <div className="dashboard-card analysis-card">
+          <h3>🔍 Market Analysis</h3>
+          <div className="analysis-content">
+            <p><strong>Trend:</strong> Strongly bullish</p>
+            <p><strong>Resistance:</strong> 12,900 points</p>
+            <p><strong>Support:</strong> 12,700 points</p>
+            <p><strong>Top Sectors:</strong> Banks, Petrochemicals</p>
+            <p><strong>Weak Sectors:</strong> Real Estate, Telecom</p>
           </div>
+        </div>
 
-          <div className="dashboard-card top-stocks">
-            <h3>🏆 Top Stocks</h3>
-            <div className="stocks-list">
-              <div className="stock-item">
-                <span className="stock-name">Saudi Aramco</span>
-                <span className="stock-change positive">+2.8%</span>
-              </div>
-              <div className="stock-item">
-                <span className="stock-name">National Bank</span>
-                <span className="stock-change positive">+3.5%</span>
-              </div>
-              <div className="stock-item">
-                <span className="stock-name">SABIC</span>
-                <span className="stock-change positive">+1.9%</span>
-              </div>
-              <div className="stock-item">
-                <span className="stock-name">Al Rajhi Bank</span>
-                <span className="stock-change positive">+2.1%</span>
-              </div>
-              <div className="stock-item">
-                <span className="stock-name">Ma'aden</span>
-                <span className="stock-change negative">-1.3%</span>
-              </div>
+        <div className="dashboard-card top-stocks">
+          <h3>🏆 Top Stocks</h3>
+          <div className="stocks-list">
+            <div className="stock-item">
+              <span className="stock-name">Saudi Aramco</span>
+              <span className="stock-change positive">+2.8%</span>
+            </div>
+            <div className="stock-item">
+              <span className="stock-name">National Bank</span>
+              <span className="stock-change positive">+3.5%</span>
+            </div>
+            <div className="stock-item">
+              <span className="stock-name">SABIC</span>
+              <span className="stock-change positive">+1.9%</span>
+            </div>
+            <div className="stock-item">
+              <span className="stock-name">Al Rajhi Bank</span>
+              <span className="stock-change positive">+2.1%</span>
+            </div>
+            <div className="stock-item">
+              <span className="stock-name">Ma'aden</span>
+              <span className="stat-change negative">-1.3%</span>
             </div>
           </div>
         </div>
 
         <div className="dashboard-card full-width">
-          <h3>💡 Tips and Recommendations</h3>
+          <h3>💡 Tips & Recommendations</h3>
           <div className="tips-grid">
             <div className="tip-item">
               <h4>Investment Strategy</h4>
-              <p>Focus on stocks with strong fundamentals in defensive sectors</p>
+              <p>Focus on defensive sectors with strong fundamentals</p>
             </div>
             <div className="tip-item">
               <h4>Risk Management</h4>
-              <p>Set stop-loss orders at specified support levels</p>
+              <p>Set stop-loss orders at support levels</p>
             </div>
             <div className="tip-item">
-              <h4>Available Opportunities</h4>
-              <p>Banking sector shows strong positive signals for long-term investment</p>
+              <h4>Opportunities</h4>
+              <p>Banking sector shows strong signals</p>
             </div>
           </div>
         </div>
 
-        {/* Call to Action if no data uploaded */}
+        {/* Call to Action */}
         {availableMonths.length === 0 && (
           <div className="dashboard-card full-width cta-card">
             <h3>🚀 Start Analyzing Your Data</h3>
-            <p>No data uploaded yet. Start by uploading your newsletter Excel file to analyze the data.</p>
+            <p>Upload your newsletter Excel file to begin analysis.</p>
             <button 
               className="cta-button"
               onClick={() => setActiveTab('upload')}
@@ -209,14 +251,23 @@ const Dashboard = ({
         )}
       </div>
     );
-  };
+  }, [getAvailableMonths, getDataByMonth, formatNumber, getStatValue, setSelectedMonth, setActiveTab]);
 
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
         <div className="header-content">
           <div className="logo-section">
-            <h1 className="logo">AWRAAQI</h1>
+            <img 
+              src="/logo.png" 
+              alt="AWRAAQI Logo" 
+              className="header-logo"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'block';
+              }}
+            />
+            <h1 className="logo" style={{ display: 'none' }}>AWRAAQI</h1>
           </div>
           <div className="title-section">
             <h1 className="dashboard-title">Trading Newsletter Dashboard</h1>
@@ -251,11 +302,11 @@ const Dashboard = ({
         </button>
       </nav>
       
-      <main className="dashboard-main container mx-auto px-4">
+      <main className="dashboard-main">
         {isLoading ? (
           <div className="loading-spinner">
             <div className="spinner"></div>
-            <p className="mt-4 text-gray-600">Loading dashboard data...</p>
+            <p>Loading dashboard data...</p>
           </div>
         ) : (
           <>
@@ -282,7 +333,7 @@ const Dashboard = ({
       </main>
       
       <footer className="dashboard-footer">
-        <p>© 2025 Block Trading Newsletter Dashboard. All rights reserved.</p>
+        <p>© 2025 Block Trading Newsletter Dashboard</p>
       </footer>
     </div>
   );

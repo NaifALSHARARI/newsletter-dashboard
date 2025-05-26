@@ -21,7 +21,7 @@ function App() {
       const data = await databaseService.getAllData();
       setGlobalData(data);
       
-      // تعيين أول شهر متاح كافتراضي
+      // تعيين أول شهر متاح كافتراضي فقط إذا لم يكن هناك شهر محدد
       const availableMonths = Object.keys(data);
       if (availableMonths.length > 0 && !selectedMonth) {
         setSelectedMonth(availableMonths[0]);
@@ -34,21 +34,33 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedMonth]);
+  }, []); // إزالة selectedMonth من dependencies
 
-  // تحميل البيانات عند بدء التطبيق
+  // تحميل البيانات عند بدء التطبيق فقط
   useEffect(() => {
     loadInitialData();
     
     // الاشتراك في التغييرات في الوقت الفعلي
     const unsubscribe = databaseService.subscribeToChanges((data) => {
       console.log('تم استلام تحديث من Firebase:', data);
-      setGlobalData(data);
+      setGlobalData(prevData => {
+        // تحديث البيانات مع الحفاظ على الشهر المحدد حالياً
+        const newData = { ...data };
+        return newData;
+      });
     });
 
     // تنظيف الاشتراك عند إنهاء المكون
     return () => unsubscribe();
-  }, [loadInitialData]);
+  }, []); // dependencies فارغة - التحميل مرة واحدة فقط
+
+  // useEffect منفصل لتعيين الشهر الافتراضي عند توفر البيانات
+  useEffect(() => {
+    if (Object.keys(globalData).length > 0 && !selectedMonth) {
+      const availableMonths = Object.keys(globalData).sort();
+      setSelectedMonth(availableMonths[0]);
+    }
+  }, [globalData, selectedMonth]);
 
   /**
    * حفظ بيانات شهر جديد
@@ -99,6 +111,16 @@ function App() {
   const getAvailableMonths = useCallback(() => {
     return Object.keys(globalData).sort();
   }, [globalData]);
+
+  /**
+   * تغيير الشهر المحدد بشكل آمن
+   * @param {string} month - الشهر الجديد
+   */
+  const handleMonthChange = useCallback((month) => {
+    console.log('تغيير الشهر من', selectedMonth, 'إلى', month);
+    setSelectedMonth(month);
+    // لا نقوم بإعادة تحميل البيانات، فقط تغيير الشهر المحدد
+  }, [selectedMonth]);
 
   /**
    * حذف بيانات شهر معين
@@ -168,7 +190,7 @@ function App() {
       <Dashboard 
         globalData={globalData}
         selectedMonth={selectedMonth}
-        setSelectedMonth={setSelectedMonth}
+        setSelectedMonth={handleMonthChange} // استخدم الدالة الآمنة
         storeDataByMonth={storeDataByMonth}
         getDataByMonth={getDataByMonth}
         getAvailableMonths={getAvailableMonths}

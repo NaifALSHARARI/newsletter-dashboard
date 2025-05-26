@@ -10,10 +10,12 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
   const [previewData, setPreviewData] = useState(null);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   
-  // Reset preview when file or month changes
+  // إزالة useEffect الذي يسبب مسح البيانات عند تغيير الشهر
+  // إذا كنت تريد مسح المعاينة عند تغيير الملف فقط
   useEffect(() => {
     setPreviewData(null);
-  }, [selectedFile, selectedMonth]);
+    setUploadStatus(''); // مسح رسائل الحالة أيضاً
+  }, [selectedFile]); // إزالة selectedMonth من dependencies
   
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -21,6 +23,19 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
       setFileName(file.name);
       setSelectedFile(file);
       setUploadStatus(`Selected: ${file.name}`);
+      // مسح المعاينة السابقة عند اختيار ملف جديد
+      setPreviewData(null);
+    }
+  };
+
+  // تحسين دالة التعامل مع تغيير الشهر
+  const handleMonthChange = (e) => {
+    const newMonth = e.target.value;
+    setSelectedMonth(newMonth);
+    
+    // إذا كان هناك معاينة موجودة وملف محدد، اسأل المستخدم إذا كان يريد إعادة المعاينة
+    if (previewData && selectedFile && newMonth) {
+      setUploadStatus('Month changed. Click "Preview Data" to see data for the new month.');
     }
   };
 
@@ -45,6 +60,7 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
     } catch (error) {
       console.error('Error previewing file:', error);
       setUploadStatus(`Error: ${error.message}`);
+      setPreviewData(null);
     } finally {
       setIsLoadingPreview(false);
     }
@@ -67,7 +83,7 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
     setUploadStatus('Processing file...');
     
     try {
-      // Use preview data if available, otherwise process the file again
+      // التأكد من أن البيانات المعاينة تخص الشهر المحدد حالياً
       if (previewData) {
         onDataProcessed(previewData, selectedMonth);
       } else {
@@ -120,7 +136,7 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
             <select 
               id="month-select"
               value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
+              onChange={handleMonthChange}
               style={{ 
                 width: '100%',
                 padding: '0.75rem',
