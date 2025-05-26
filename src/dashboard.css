@@ -23,465 +23,6 @@
   --gray-800: #1f2937;
 }
 
-/* General styles */
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  color: var(--text-primary);
-  background-color: var(--light-bg);
-  margin: 0;
-  padding: 0;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Dashboard Container */
-.dashboard-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* Dashboard header */
-.dashboard-header {
-  background: linear-gradient(135deg, #e67e22, #f39c12);
-  color: white;
-  padding: 1.5rem 2rem;
-  box-shadow: var(--shadow-md);
-  position: relative;
-}
-
-.header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.logo-section {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-/* تنسيق الشعار - بدون إطار */
-.header-logo {
-  height: 50px !important;
-  width: auto !important;
-  max-width: 200px;
-  object-fit: contain !important;
-  transition: transform 0.3s ease;
-  filter: brightness(1.1) contrast(1.1);
-  animation: logoFadeIn 0.8s ease-in-out;
-}
-
-.header-logo:hover {
-  transform: scale(1.05);
-  filter: brightness(1.2) contrast(1.2);
-}
-
-/* النص الاحتياطي - بدون إطار */
-.logo {
-  font-size: 2rem;
-  font-weight: bold;
-  color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  margin: 0;
-}
-
-/* تنسيق العنوان */
-.title-section {
-  flex: 1;
-  text-align: center;
-}
-
-.dashboard-title {
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin: 0;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-/* Navigation */
-.dashboard-nav {
-  display: flex;
-  background-color: white;
-  padding: 0.5rem 2rem;
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 2rem;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.nav-button {
-  padding: 0.75rem 1.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border: none;
-  background: none;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  margin-right: 0.5rem;
-  transition: all 0.2s;
-  min-height: 44px;
-  touch-action: manipulation;
-}
-
-.nav-button:hover {
-  background-color: rgba(0, 105, 92, 0.1);
-  color: var(--primary-color);
-}
-
-.nav-button-active {
-  background-color: var(--primary-color);
-  color: white;
-}
-
-.nav-button-active:hover {
-  background-color: var(--primary-hover);
-  color: white;
-}
-
-/* Main Content */
-.dashboard-main {
-  flex: 1;
-  min-height: calc(100vh - 180px);
-  padding: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.main-dashboard-content {
-  padding: 0;
-}
-
-/* Card styles */
-.dashboard-card {
-  background-color: white;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  transition: transform 0.3s, box-shadow 0.3s;
-  border: 1px solid var(--border-color);
-  position: relative;
-  overflow: hidden;
-}
-
-.dashboard-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
-}
-
-.dashboard-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transition: left 0.5s;
-}
-
-.dashboard-card:hover::before {
-  left: 100%;
-}
-
-.dashboard-card h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-top: 0;
-  margin-bottom: 1rem;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.75rem;
-}
-
-/* Grid layouts */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-@media (min-width: 768px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.dashboard-grid-3 {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 1.5rem;
-}
-
-@media (min-width: 1024px) {
-  .dashboard-grid-3 {
-    grid-template-columns: 1fr 2fr;
-  }
-}
-
-/* Uploaded Data Summary */
-.uploaded-data-summary {
-  margin-bottom: 2rem;
-}
-
-.uploaded-months-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-
-.month-summary-card {
-  padding: 1.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  background: var(--light-bg);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.month-summary-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.month-summary-card h4 {
-  font-size: 1.25rem;
-  margin: 0 0 1rem 0;
-  color: var(--primary-color);
-  text-align: center;
-  font-weight: 600;
-}
-
-.month-stats {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.view-details-btn {
-  width: 100%;
-  padding: 0.75rem;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  min-height: 44px;
-  touch-action: manipulation;
-}
-
-.view-details-btn:hover {
-  background-color: var(--primary-hover);
-}
-
-/* Specific card types */
-.news-card {
-  background: white;
-  color: var(--text-primary);
-  border-left: 4px solid var(--primary-color);
-}
-
-.news-card h3 {
-  color: var(--primary-color);
-  border-bottom-color: var(--border-color);
-}
-
-.market-overview {
-  background: white;
-  color: var(--text-primary);
-  border-left: 4px solid #1e40af;
-}
-
-.market-overview h3 {
-  color: #1e40af;
-  border-bottom-color: var(--border-color);
-}
-
-.analysis-card {
-  background: white;
-  color: var(--text-primary);
-  border-left: 4px solid #059669;
-}
-
-.analysis-card h3 {
-  color: #059669;
-  border-bottom-color: var(--border-color);
-}
-
-.top-stocks {
-  background: white;
-  color: var(--text-primary);
-  border-left: 4px solid #7c3aed;
-}
-
-.top-stocks h3 {
-  color: #7c3aed;
-  border-bottom-color: var(--border-color);
-}
-
-/* Market Stats */
-.market-stats {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 1rem;
-}
-
-@media (min-width: 640px) {
-  .market-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-  background-color: var(--light-bg);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--border-color);
-  text-align: center;
-  position: relative;
-  transition: all 0.2s ease;
-}
-
-.stat-item:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.stat-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 3px;
-  height: 100%;
-  background: var(--primary-color);
-  transform: scaleY(0);
-  transition: transform 0.2s ease;
-}
-
-.stat-item:hover::before {
-  transform: scaleY(1);
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
-.stat-value {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.stat-value.positive {
-  color: var(--success-color);
-  animation: pulse-green 2s infinite;
-}
-
-.stat-value.negative {
-  color: var(--danger-color);
-}
-
-/* Stocks List */
-.stocks-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.stock-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  background-color: var(--light-bg);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--border-color);
-  position: relative;
-  transition: all 0.2s ease;
-}
-
-.stock-item:hover {
-  transform: translateX(5px);
-  box-shadow: var(--shadow-md);
-}
-
-.stock-name {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.stock-change {
-  font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-}
-
-.stock-change.positive {
-  background-color: rgba(16, 185, 129, 0.1);
-  color: var(--success-color);
-}
-
-.stock-change.negative {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: var(--danger-color);
-}
-
-/* Analysis Content */
-.analysis-content p {
-  margin-bottom: 0.75rem;
-  line-height: 1.6;
-}
-
-/* Full Width Card */
-.full-width {
-  grid-column: 1 / -1;
-  background: white;
-  color: var(--text-primary);
-  border-left: 4px solid #f59e0b;
-}
-
-.full-width h3 {
-  color: #f59e0b;
-  border-bottom-color: var(--border-color);
-}
-
-/* Tips Grid */
-.tips-grid {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 1.5rem;
-}
-
-@media (min-width: 768px) {
-  .tips-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
 .tip-item {
   padding: 1.5rem;
   background-color: var(--light-bg);
@@ -722,6 +263,191 @@ body {
     line-height: 1.3;
     margin: 0;
   }
+
+  /* تحسين تباين النصوص في الكاردز */
+  .month-summary-card {
+    background: #ffffff !important;
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .month-summary-card h4 {
+    color: var(--primary-color) !important;
+    font-weight: 700 !important;
+    font-size: 1.2rem !important;
+    text-align: center;
+    background: rgba(0, 105, 92, 0.1);
+    padding: 0.75rem;
+    margin: -1rem -1rem 1rem -1rem;
+    border-radius: 0.375rem 0.375rem 0 0;
+  }
+  
+  /* تحسين الإحصائيات */
+  .month-stats .stat-item {
+    background: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    padding: 1rem !important;
+    border-radius: 8px !important;
+    margin-bottom: 0.5rem;
+  }
+  
+  .month-stats .stat-label {
+    color: #495057 !important;
+    font-weight: 600 !important;
+    font-size: 0.8rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem !important;
+    display: block !important;
+  }
+  
+  .month-stats .stat-value {
+    color: #212529 !important;
+    font-weight: 700 !important;
+    font-size: 1.1rem !important;
+    display: block !important;
+  }
+  
+  /* تحسين زر View Details */
+  .view-details-btn {
+    background: var(--primary-color) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    padding: 1rem !important;
+    border: none !important;
+    border-radius: 8px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 105, 92, 0.3);
+  }
+  
+  .view-details-btn:hover {
+    background: var(--primary-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 105, 92, 0.4);
+  }
+  
+  /* تحسين العنوان الرئيسي */
+  .uploaded-data-summary h3 {
+    color: var(--primary-color) !important;
+    font-weight: 700 !important;
+    font-size: 1.3rem !important;
+    text-align: center;
+    background: rgba(0, 105, 92, 0.1);
+    padding: 1rem;
+    margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+  
+  /* تحسين كاردز البيانات الأخرى */
+  .dashboard-card {
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    color: #212529 !important;
+  }
+  
+  .dashboard-card h3 {
+    color: var(--primary-color) !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid var(--primary-color) !important;
+  }
+  
+  /* تحسين News Items */
+  .news-item {
+    color: #212529 !important;
+    font-weight: 500 !important;
+    background: rgba(0, 105, 92, 0.05);
+    padding: 0.75rem 0.75rem 0.75rem 1.5rem !important;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    border-left: 3px solid var(--primary-color);
+  }
+  
+  .news-item::before {
+    color: var(--primary-color) !important;
+  }
+  
+  /* تحسين Market Stats */
+  .market-stats .stat-item {
+    background: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    color: #212529 !important;
+  }
+  
+  .market-stats .stat-label {
+    color: #6c757d !important;
+    font-weight: 600 !important;
+  }
+  
+  .market-stats .stat-value {
+    color: #212529 !important;
+    font-weight: 700 !important;
+  }
+  
+  .market-stats .stat-value.positive {
+    color: var(--success-color) !important;
+  }
+  
+  /* تحسين Stock Items */
+  .stock-item {
+    background: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    color: #212529 !important;
+  }
+  
+  .stock-name {
+    color: #212529 !important;
+    font-weight: 600 !important;
+  }
+  
+  /* تحسين Analysis Content */
+  .analysis-content p {
+    color: #212529 !important;
+    font-weight: 500 !important;
+    line-height: 1.6;
+  }
+  
+  /* تحسين Tips */
+  .tip-item {
+    background: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+  }
+  
+  .tip-item h4 {
+    color: var(--primary-color) !important;
+    font-weight: 600 !important;
+  }
+  
+  .tip-item p {
+    color: #495057 !important;
+    font-weight: 500 !important;
+  }
+  
+  /* تحسين CTA Card */
+  .cta-card {
+    background: #ffffff !important;
+    border: 2px solid var(--primary-color) !important;
+    text-align: center;
+  }
+  
+  .cta-card h3 {
+    color: var(--primary-color) !important;
+    font-weight: 700 !important;
+  }
+  
+  .cta-card p {
+    color: #495057 !important;
+    font-weight: 500 !important;
+  }
+  
+  .cta-button {
+    background: var(--primary-color) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(0, 105, 92, 0.3);
+  }
 }
 
 /* Navigation للجوال */
@@ -783,10 +509,15 @@ body {
   .dashboard-main {
     padding: 0.75rem;
     min-height: calc(100vh - 160px);
+    background: #f8f9fa !important;
   }
   
   .main-dashboard-content {
     padding: 0;
+  }
+  
+  .dashboard-container {
+    background: #f8f9fa !important;
   }
 }
 
@@ -825,16 +556,8 @@ body {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-}
-
-/* Data Summary للجوال */
-@media (max-width: 768px) {
-  .uploaded-data-summary {
-    margin-bottom: 1rem;
-  }
   
   .uploaded-months-grid {
-    display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
   }
@@ -1062,6 +785,73 @@ body {
   .logo {
     font-size: 1.2rem !important;
   }
+  
+  .month-summary-card {
+    padding: 0.75rem;
+  }
+  
+  .month-summary-card h4 {
+    font-size: 1.1rem;
+  }
+  
+  .month-stats .stat-label {
+    font-size: 0.7rem;
+  }
+  
+  .month-stats .stat-value {
+    font-size: 0.9rem;
+  }
+  
+  .view-details-btn {
+    font-size: 0.8rem;
+    padding: 0.6rem;
+  }
+}
+
+/* إضافة أيقونات ملونة للإحصائيات في الجوال */
+@media (max-width: 768px) {
+  .month-stats .stat-item {
+    position: relative;
+    padding-left: 3rem !important;
+  }
+  
+  .month-stats .stat-item::before {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+  }
+  
+  /* إضافة أيقونات مخصصة */
+  .stat-item[data-stat="volume"]::before {
+    content: "📊";
+    background: #3b82f6;
+  }
+  
+  .stat-item[data-stat="value"]::before {
+    content: "💰";
+    background: #10b981;
+  }
+  
+  .stat-item[data-stat="companies"]::before {
+    content: "🏢";
+    background: #8b5cf6;
+  }
+  
+  .stat-item[data-stat="deals"]::before {
+    content: "🤝";
+    background: #f59e0b;
+  }
 }
 
 /* ====================================== */
@@ -1102,247 +892,6 @@ body {
   }
 }
 
-/* ====================================== */
-/* Dark Mode Support */
-/* ====================================== */
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --light-bg: #1f2937;
-    --text-primary: #f9fafb;
-    --text-secondary: #d1d5db;
-    --border-color: #374151;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-  }
-  
-  body {
-    background-color: #111827;
-    color: var(--text-primary);
-  }
-  
-  .dashboard-card {
-    background-color: #374151;
-    border-color: #4b5563;
-  }
-  
-  .dashboard-nav {
-    background-color: #374151;
-    border-bottom: 1px solid #4b5563;
-  }
-  
-  .dashboard-footer {
-    background-color: #374151;
-    border-top: 1px solid #4b5563;
-  }
-  
-  .stat-item,
-  .stock-item,
-  .tip-item,
-  .month-summary-card {
-    background-color: #4b5563;
-    border-color: #6b7280;
-  }
-}
-
-/* ====================================== */
-/* Print Styles */
-/* ====================================== */
-
-@media print {
-  .dashboard-nav,
-  .dashboard-footer,
-  .cta-button,
-  .view-details-btn {
-    display: none !important;
-  }
-  
-  .dashboard-card {
-    page-break-inside: avoid;
-    box-shadow: none;
-    border: 1px solid #000;
-  }
-  
-  .dashboard-header {
-    background: white !important;
-    color: black !important;
-    -webkit-print-color-adjust: exact;
-  }
-  
-  body {
-    background: white !important;
-    color: black !important;
-  }
-  
-  .news-item::after,
-  .dashboard-card::before {
-    display: none !important;
-  }
-}
-
-/* ====================================== */
-/* Interactive Elements */
-/* ====================================== */
-
-/* Ripple Effect للأزرار */
-.ripple {
-  position: relative;
-  overflow: hidden;
-}
-
-.ripple::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.ripple:active::after {
-  width: 300px;
-  height: 300px;
-}
-
-/* Scroll to Top Button */
-.scroll-to-top {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  cursor: pointer;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.3s ease;
-  z-index: 1000;
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-}
-
-.scroll-to-top.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.scroll-to-top:hover {
-  background: var(--primary-hover);
-  transform: translateY(-2px);
-}
-
-/* ====================================== */
-/* Utility Classes */
-/* ====================================== */
-
-/* Text Utilities */
-.text-center { text-align: center; }
-.text-left { text-align: left; }
-.text-right { text-align: right; }
-
-.text-sm { font-size: 0.875rem; }
-.text-lg { font-size: 1.125rem; }
-.text-xl { font-size: 1.25rem; }
-
-.font-bold { font-weight: 700; }
-.font-medium { font-weight: 500; }
-.font-light { font-weight: 300; }
-
-/* Spacing Utilities */
-.mt-0 { margin-top: 0; }
-.mt-1 { margin-top: 0.25rem; }
-.mt-2 { margin-top: 0.5rem; }
-.mt-4 { margin-top: 1rem; }
-
-.mb-0 { margin-bottom: 0; }
-.mb-1 { margin-bottom: 0.25rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-4 { margin-bottom: 1rem; }
-
-.p-0 { padding: 0; }
-.p-1 { padding: 0.25rem; }
-.p-2 { padding: 0.5rem; }
-.p-4 { padding: 1rem; }
-
-/* Display Utilities */
-.hidden { display: none; }
-.block { display: block; }
-.inline-block { display: inline-block; }
-.flex { display: flex; }
-.grid { display: grid; }
-
-/* Flexbox Utilities */
-.justify-center { justify-content: center; }
-.justify-between { justify-content: space-between; }
-.justify-around { justify-content: space-around; }
-
-.items-center { align-items: center; }
-.items-start { align-items: flex-start; }
-.items-end { align-items: flex-end; }
-
-.flex-col { flex-direction: column; }
-.flex-row { flex-direction: row; }
-
-/* Color Utilities */
-.text-primary { color: var(--primary-color); }
-.text-secondary { color: var(--text-secondary); }
-.text-success { color: var(--success-color); }
-.text-danger { color: var(--danger-color); }
-.text-warning { color: var(--warning-color); }
-
-.bg-primary { background-color: var(--primary-color); }
-.bg-light { background-color: var(--light-bg); }
-.bg-white { background-color: white; }
-
-/* Border Utilities */
-.border { border: 1px solid var(--border-color); }
-.border-primary { border-color: var(--primary-color); }
-.border-success { border-color: var(--success-color); }
-
-.rounded { border-radius: var(--border-radius); }
-.rounded-full { border-radius: 50%; }
-
-/* Shadow Utilities */
-.shadow-sm { box-shadow: var(--shadow-sm); }
-.shadow-md { box-shadow: var(--shadow-md); }
-.shadow-lg { box-shadow: var(--shadow-lg); }
-.shadow-none { box-shadow: none; }
-
-/* ====================================== */
-/* Performance Optimizations */
-/* ====================================== */
-
-/* GPU Acceleration */
-.gpu-accelerated {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-}
-
-/* Will Change للعناصر المتحركة */
-.dashboard-card,
-.nav-button,
-.header-logo {
-  will-change: transform;
-}
-
-/* Content Visibility للأداء */
-.dashboard-card {
-  content-visibility: auto;
-  contain-intrinsic-size: 300px;
-}
-
 /* تحسين تفاعل اللمس للجوال */
 @media (max-width: 768px) {
   .nav-button,
@@ -1361,10 +910,256 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  
+  /* إزالة أي opacity أو transparency قد تخفي النصوص */
+  .month-stats .stat-item,
+  .market-stats .stat-item,
+  .stock-item,
+  .news-item,
+  .tip-item {
+    opacity: 1 !important;
+    backdrop-filter: none !important;
+  }
+  
+  /* التأكد من وضوح جميع النصوص */
+  .stat-label,
+  .stat-value,
+  .stock-name,
+  .stock-change,
+  .news-item,
+  .tip-item h4,
+  .tip-item p,
+  .analysis-content p {
+    text-shadow: none !important;
+    opacity: 1 !important;
+  }
 }
-/* إضافة هذا CSS لملف dashboard.css لتحسين عرض الإحصائيات */
 
-/* تحسين عرض البيانات في الصفحة الرئيسية */
+/* General styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: var(--text-primary);
+  background-color: var(--light-bg);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dashboard Container */
+.dashboard-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Dashboard header */
+.dashboard-header {
+  background: linear-gradient(135deg, #e67e22, #f39c12);
+  color: white;
+  padding: 1.5rem 2rem;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Logo styling - no frame */
+.header-logo {
+  height: 50px !important;
+  width: auto !important;
+  max-width: 200px;
+  object-fit: contain !important;
+  transition: transform 0.3s ease;
+  filter: brightness(1.1) contrast(1.1);
+  animation: logoFadeIn 0.8s ease-in-out;
+}
+
+.header-logo:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2) contrast(1.2);
+}
+
+/* Fallback text - no frame */
+.logo {
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 0;
+}
+
+/* Title styling */
+.title-section {
+  flex: 1;
+  text-align: center;
+}
+
+.dashboard-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Navigation */
+.dashboard-nav {
+  display: flex;
+  background-color: white;
+  padding: 0.5rem 2rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-button {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  background: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  transition: all 0.2s;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+.nav-button:hover {
+  background-color: rgba(0, 105, 92, 0.1);
+  color: var(--primary-color);
+}
+
+.nav-button-active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.nav-button-active:hover {
+  background-color: var(--primary-hover);
+  color: white;
+}
+
+/* Main Content */
+.dashboard-main {
+  flex: 1;
+  min-height: calc(100vh - 180px);
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.main-dashboard-content {
+  padding: 0;
+}
+
+/* Card styles */
+.dashboard-card {
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.dashboard-card:hover::before {
+  left: 100%;
+}
+
+.dashboard-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+}
+
+/* Grid layouts */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.dashboard-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid-3 {
+    grid-template-columns: 1fr 2fr;
+  }
+}
+
+/* Uploaded Data Summary */
+.uploaded-data-summary {
+  margin-bottom: 2rem;
+}
+
+.uploaded-data-summary h3 {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
+  border-bottom: 3px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+}
+
 .uploaded-months-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -1395,7 +1190,6 @@ body {
   padding-bottom: 0.5rem;
 }
 
-/* تحسين عرض الإحصائيات في الكارد */
 .month-stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1403,38 +1197,6 @@ body {
   margin-bottom: 1.5rem;
 }
 
-/* للشاشات الصغيرة - عمود واحد */
-@media (max-width: 768px) {
-  .uploaded-months-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .month-stats {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
-  
-  .month-summary-card {
-    padding: 1rem;
-  }
-}
-
-/* للشاشات المتوسطة - 3 أعمدة للإحصائيات */
-@media (min-width: 769px) and (max-width: 1200px) {
-  .month-stats {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* للشاشات الكبيرة - عمودين للإحصائيات */
-@media (min-width: 1201px) {
-  .month-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* تحسين stat-item لعرض أفضل */
 .month-stats .stat-item {
   padding: 0.75rem;
   background-color: white;
@@ -1467,7 +1229,6 @@ body {
   word-break: break-word;
 }
 
-/* تحسين زر View Details */
 .view-details-btn {
   width: 100%;
   padding: 0.75rem;
@@ -1495,50 +1256,194 @@ body {
   transform: translateY(0);
 }
 
-/* تحسين العنوان الرئيسي */
-.uploaded-data-summary h3 {
+/* Specific card types */
+.news-card {
+  background: white;
+  color: var(--text-primary);
+  border-left: 4px solid var(--primary-color);
+}
+
+.news-card h3 {
   color: var(--primary-color);
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
+  border-bottom-color: var(--border-color);
+}
+
+.market-overview {
+  background: white;
+  color: var(--text-primary);
+  border-left: 4px solid #1e40af;
+}
+
+.market-overview h3 {
+  color: #1e40af;
+  border-bottom-color: var(--border-color);
+}
+
+.analysis-card {
+  background: white;
+  color: var(--text-primary);
+  border-left: 4px solid #059669;
+}
+
+.analysis-card h3 {
+  color: #059669;
+  border-bottom-color: var(--border-color);
+}
+
+.top-stocks {
+  background: white;
+  color: var(--text-primary);
+  border-left: 4px solid #7c3aed;
+}
+
+.top-stocks h3 {
+  color: #7c3aed;
+  border-bottom-color: var(--border-color);
+}
+
+/* Market Stats */
+.market-stats {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .market-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background-color: var(--light-bg);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
   text-align: center;
-  border-bottom: 3px solid var(--primary-color);
-  padding-bottom: 0.5rem;
+  position: relative;
+  transition: all 0.2s ease;
 }
 
-/* إضافة أيقونات للإحصائيات */
-.stat-item.volume::before {
-  content: "📊";
-  display: block;
-  font-size: 1.2rem;
-  margin-bottom: 0.25rem;
+.stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
-.stat-item.value::before {
-  content: "💰";
-  display: block;
-  font-size: 1.2rem;
-  margin-bottom: 0.25rem;
+.stat-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--primary-color);
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
 }
 
-.stat-item.companies::before {
-  content: "🏢";
-  display: block;
-  font-size: 1.2rem;
-  margin-bottom: 0.25rem;
+.stat-item:hover::before {
+  transform: scaleY(1);
 }
 
-.stat-item.deals::before {
-  content: "🤝";
-  display: block;
-  font-size: 1.2rem;
-  margin-bottom: 0.25rem;
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
 }
 
-/* تحسين للشاشات الصغيرة جداً */
-@media (max-width: 400px) {
-  .month-summary-card {
-    padding: 0.75rem;
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-value.positive {
+  color: var(--success-color);
+  animation: pulse-green 2s infinite;
+}
+
+.stat-value.negative {
+  color: var(--danger-color);
+}
+
+/* Stocks List */
+.stocks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.stock-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--light-bg);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.stock-item:hover {
+  transform: translateX(5px);
+  box-shadow: var(--shadow-md);
+}
+
+.stock-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.stock-change {
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.stock-change.positive {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.stock-change.negative {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+}
+
+/* Analysis Content */
+.analysis-content p {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+/* Full Width Card */
+.full-width {
+  grid-column: 1 / -1;
+  background: white;
+  color: var(--text-primary);
+  border-left: 4px solid #f59e0b;
+}
+
+.full-width h3 {
+  color: #f59e0b;
+  border-bottom-color: var(--border-color);
+}
+
+/* Tips Grid */
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .tips-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
   
   .month-summary-card h4 {

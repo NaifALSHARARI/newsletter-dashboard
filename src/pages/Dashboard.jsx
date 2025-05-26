@@ -4,7 +4,7 @@ import FileUpload from '../components/FileUpload';
 import ReportsTab from '../components/ReportsTab';
 
 /**
- * Dashboard محدث لعرض نفس أسماء الحقول في ExcelAnalyzer
+ * Dashboard component with mobile optimization and consistent field names
  */
 const Dashboard = ({ 
   globalData, 
@@ -18,7 +18,7 @@ const Dashboard = ({
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // تحديث البيانات عند تغيير الشهر المحدد
+  // Update data when selected month changes
   useEffect(() => {
     if (selectedMonth && globalData[selectedMonth]) {
       const timeoutId = setTimeout(() => {
@@ -29,7 +29,7 @@ const Dashboard = ({
     }
   }, [selectedMonth, globalData]);
 
-  // معالجة البيانات المرفوعة
+  // Handle processed data - only redirect here after successful upload
   const handleDataProcessed = useCallback((newData, month) => {
     console.log('Processed data received:', newData, 'for month:', month);
     
@@ -44,6 +44,7 @@ const Dashboard = ({
       setDashboardData(newData);
     });
     
+    // Navigate to analysis after upload
     setIsLoading(true);
     setTimeout(() => {
       setActiveTab('analysis');
@@ -51,7 +52,7 @@ const Dashboard = ({
     }, 800);
   }, [storeDataByMonth]);
 
-  // تنسيق الأرقام للعرض
+  // Format numbers for display
   const formatNumber = useCallback((num) => {
     if (!num) return "N/A";
     const number = parseFloat(num.toString().replace(/,/g, ''));
@@ -65,19 +66,29 @@ const Dashboard = ({
     return number.toLocaleString();
   }, []);
 
-  // الحصول على قيمة الإحصائية من rawStats
+  // Get statistic value from rawStats
   const getStatValue = useCallback((monthData, statKey) => {
     if (!monthData || !monthData.rawStats) return "N/A";
     return monthData.rawStats[statKey] || "N/A";
   }, []);
 
-  // محتوى Dashboard الرئيسي مع أسماء الحقول الصحيحة
+  // Safe tab navigation
+  const handleTabChange = useCallback((tabName) => {
+    setActiveTab(tabName);
+  }, []);
+
+  // Safe month change for analysis only
+  const handleAnalysisMonthChange = useCallback((month) => {
+    setSelectedMonth(month);
+  }, [setSelectedMonth]);
+
+  // Main Dashboard Content with matching field names
   const renderMainDashboard = useCallback(() => {
     const availableMonths = getAvailableMonths();
     
     return (
       <div className="main-dashboard-content">
-        {/* ملخص البيانات المرفوعة - محدث ليطابق ExcelAnalyzer */}
+        {/* Uploaded Data Summary - matches ExcelAnalyzer field names */}
         {availableMonths.length > 0 && (
           <div className="dashboard-card full-width uploaded-data-summary">
             <h3>📋 Uploaded Data Summary</h3>
@@ -88,43 +99,42 @@ const Dashboard = ({
                   <div key={month} className="month-summary-card">
                     <h4>{month} 2025</h4>
                     <div className="month-stats">
-                      {/* نفس أسماء الحقول الموجودة في ExcelAnalyzer */}
-                      <div className="stat-item">
+                      <div className="stat-item" data-stat="volume">
                         <span className="stat-label">Average Volume Traded</span>
                         <span className="stat-value">
                           {formatNumber(getStatValue(monthData, "Average Volume Traded"))}
                         </span>
                       </div>
                       
-                      <div className="stat-item">
+                      <div className="stat-item" data-stat="value">
                         <span className="stat-label">Average Value Traded</span>
                         <span className="stat-value">
                           {formatNumber(getStatValue(monthData, "Average Value Traded"))}
                         </span>
                       </div>
                       
-                      <div className="stat-item">
+                      <div className="stat-item" data-stat="volume">
                         <span className="stat-label">Sum Volume Traded</span>
                         <span className="stat-value">
                           {formatNumber(getStatValue(monthData, "Sum Volume Traded"))}
                         </span>
                       </div>
                       
-                      <div className="stat-item">
+                      <div className="stat-item" data-stat="value">
                         <span className="stat-label">Sum Value Traded</span>
                         <span className="stat-value">
                           {formatNumber(getStatValue(monthData, "Sum Value Traded"))}
                         </span>
                       </div>
                       
-                      <div className="stat-item">
+                      <div className="stat-item" data-stat="companies">
                         <span className="stat-label">Number of Companies</span>
                         <span className="stat-value">
                           {formatNumber(getStatValue(monthData, "Number of Companies"))}
                         </span>
                       </div>
                       
-                      <div className="stat-item">
+                      <div className="stat-item" data-stat="deals">
                         <span className="stat-label">Number of Deals</span>
                         <span className="stat-value">
                           {formatNumber(getStatValue(monthData, "Number of Deals"))}
@@ -147,7 +157,7 @@ const Dashboard = ({
           </div>
         )}
 
-        {/* باقي محتوى Dashboard */}
+        {/* Rest of Dashboard content */}
         <div className="dashboard-card news-card">
           <h3>📈 Today's Trading News</h3>
           <ul className="news-list">
@@ -213,7 +223,7 @@ const Dashboard = ({
             </div>
             <div className="stock-item">
               <span className="stock-name">Ma'aden</span>
-              <span className="stat-change negative">-1.3%</span>
+              <span className="stock-change negative">-1.3%</span>
             </div>
           </div>
         </div>
@@ -243,7 +253,7 @@ const Dashboard = ({
             <p>Upload your newsletter Excel file to begin analysis.</p>
             <button 
               className="cta-button"
-              onClick={() => setActiveTab('upload')}
+              onClick={() => handleTabChange('upload')}
             >
               Upload Data Now
             </button>
@@ -251,7 +261,7 @@ const Dashboard = ({
         )}
       </div>
     );
-  }, [getAvailableMonths, getDataByMonth, formatNumber, getStatValue, setSelectedMonth, setActiveTab]);
+  }, [getAvailableMonths, getDataByMonth, formatNumber, getStatValue, setSelectedMonth, setActiveTab, handleTabChange]);
 
   return (
     <div className="dashboard-container">
@@ -277,25 +287,25 @@ const Dashboard = ({
       
       <nav className="dashboard-nav">
         <button
-          onClick={() => setActiveTab('dashboard')}
+          onClick={() => handleTabChange('dashboard')}
           className={`nav-button ${activeTab === 'dashboard' ? 'nav-button-active' : ''}`}
         >
           Dashboard
         </button>
         <button
-          onClick={() => setActiveTab('analysis')}
+          onClick={() => handleTabChange('analysis')}
           className={`nav-button ${activeTab === 'analysis' ? 'nav-button-active' : ''}`}
         >
           Data Analysis
         </button>
         <button
-          onClick={() => setActiveTab('reports')}
+          onClick={() => handleTabChange('reports')}
           className={`nav-button ${activeTab === 'reports' ? 'nav-button-active' : ''}`}
         >
           Reports
         </button>
         <button
-          onClick={() => setActiveTab('upload')}
+          onClick={() => handleTabChange('upload')}
           className={`nav-button ${activeTab === 'upload' ? 'nav-button-active' : ''}`}
         >
           Upload Data
@@ -315,7 +325,7 @@ const Dashboard = ({
               <ExcelAnalyzer 
                 globalData={globalData}
                 selectedMonth={selectedMonth}
-                setSelectedMonth={setSelectedMonth}
+                setSelectedMonth={handleAnalysisMonthChange}
                 getDataByMonth={getDataByMonth}
                 getAvailableMonths={getAvailableMonths}
               />
