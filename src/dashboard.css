@@ -1,0 +1,606 @@
+/* dashboard.css */
+:root {
+    --primary-color: #00695c;
+    --primary-hover: #004d40;
+    --secondary-color: #22c55e;
+    --light-bg: #f9fafb;
+    --border-color: #e5e7eb;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+  }
+  
+  /* General styles */
+  body {
+    font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: var(--text-primary);
+    background-color: var(--light-bg);
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Dashboard header */
+  .dashboard-header {
+    background: linear-gradient(to right, #d39f50);
+    color: white;
+    padding: 1.5rem 2rem;
+    box-shadow: var(--shadow-md);
+  }
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  
+  .header-logo {
+    height: 40px; 
+    width: auto;
+    margin-right: 2rem;
+  }
+  
+  /* Navigation */
+  .dashboard-nav {
+    display: flex;
+    background-color: white;
+    padding: 0.5rem 2rem;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+  }
+  
+  .nav-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    background: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    transition: all 0.2s;
+  }
+  
+  .nav-button:hover {
+    background-color: rgba(0, 105, 92, 0.1);
+    color: var(--primary-color);
+  }
+  
+  .nav-button-active {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .nav-button-active:hover {
+    background-color: var(--primary-hover);
+    color: white;
+  }
+  
+  /* Card styles */
+  .dashboard-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-md);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .dashboard-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .dashboard-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+  }
+  
+  /* Grid layouts */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  @media (min-width: 768px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  .dashboard-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+  }
+  
+  @media (min-width: 1024px) {
+    .dashboard-grid-3 {
+      grid-template-columns: 1fr 2fr;
+    }
+  }
+  
+  /* Main Dashboard Content Styles */
+  .main-dashboard-content {
+    padding: 0;
+  }
+  
+  .news-card {
+    background: white;
+    color: var(--text-primary);
+    border-left: 4px solid var(--primary-color);
+  }
+  
+  .news-card h3 {
+    color: var(--primary-color);
+    border-bottom-color: var(--border-color);
+  }
+  
+  .market-overview {
+    background: white;
+    color: var(--text-primary);
+    border-left: 4px solid #1e40af;
+  }
+  
+  .market-overview h3 {
+    color: #1e40af;
+    border-bottom-color: var(--border-color);
+  }
+  
+  .analysis-card {
+    background: white;
+    color: var(--text-primary);
+    border-left: 4px solid #059669;
+  }
+  
+  .analysis-card h3 {
+    color: #059669;
+    border-bottom-color: var(--border-color);
+  }
+  
+  .top-stocks {
+    background: white;
+    color: var(--text-primary);
+    border-left: 4px solid #7c3aed;
+  }
+  
+  .top-stocks h3 {
+    color: #7c3aed;
+    border-bottom-color: var(--border-color);
+  }
+  
+  /* Market Stats */
+  .market-stats {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .market-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    background-color: var(--light-bg);
+    border-radius: 0.375rem;
+    border: 1px solid var(--border-color);
+  }
+  
+  .stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  .stat-value.positive {
+    color: var(--success-color);
+  }
+  
+  .stat-value.negative {
+    color: var(--danger-color);
+  }
+  
+  /* Stocks List */
+  .stocks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .stock-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: var(--light-bg);
+    border-radius: 0.375rem;
+    border: 1px solid var(--border-color);
+  }
+  
+  .stock-name {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  
+  .stock-change {
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .stock-change.positive {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+  }
+  
+  .stock-change.negative {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+  }
+  
+  /* Analysis Content */
+  .analysis-content p {
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+  }
+  
+  /* Full Width Card */
+  .full-width {
+    grid-column: 1 / -1;
+    background: white;
+    color: var(--text-primary);
+    border-left: 4px solid #f59e0b;
+  }
+  
+  .full-width h3 {
+    color: #f59e0b;
+    border-bottom-color: var(--border-color);
+  }
+  
+  /* Tips Grid */
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .tips-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .tip-item {
+    padding: 1.5rem;
+    background-color: var(--light-bg);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+  }
+  
+  .tip-item h4 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .tip-item p {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+  
+  /* Charts */
+  .recharts-default-tooltip {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border: none !important;
+    border-radius: 0.375rem !important;
+    box-shadow: var(--shadow-md) !important;
+    padding: 0.75rem !important;
+  }
+  
+  .recharts-tooltip-label {
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Data table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .data-table th {
+    background-color: var(--light-bg);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.875rem;
+  }
+  
+  .data-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .data-table tr:hover td {
+    background-color: rgba(0, 105, 92, 0.05);
+  }
+  
+  /* Buttons */
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+  }
+  
+  .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--primary-hover);
+  }
+  
+  .btn-secondary {
+    background-color: white;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+  }
+  
+  .btn-secondary:hover {
+    background-color: var(--light-bg);
+  }
+  
+  /* File upload styles */
+  .file-upload-container {
+    border: 2px dashed var(--border-color);
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    background-color: var(--light-bg);
+    transition: all 0.2s;
+  }
+  
+  .file-upload-container:hover {
+    border-color: var(--primary-color);
+  }
+  
+  .file-input {
+    display: none;
+  }
+  
+  .file-label {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-weight: 500;
+    display: inline-block;
+    transition: all 0.2s;
+  }
+  
+  .file-label:hover {
+    background-color: var(--primary-hover);
+  }
+  
+  /* Status messages */
+  .status-message {
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    margin: 1rem 0;
+  }
+  
+  .status-success {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: var(--secondary-color);
+    border-left: 4px solid var(--secondary-color);
+  }
+  
+  .status-error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-left: 4px solid #ef4444;
+  }
+  
+  .status-info {
+    background-color: rgba(0, 105, 92, 0.1);
+    color: var(--primary-color);
+    border-left: 4px solid var(--primary-color);
+  }
+  
+  /* Footer */
+  .dashboard-footer {
+    background-color: white;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+  
+  /* Loading spinner */
+  .loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+  
+  .spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 0.25rem solid rgba(0, 105, 92, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s ease-in-out infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Additional styles */
+  .news-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .news-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+    padding-left: 1.5rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+  }
+  
+  .news-item:last-child {
+    border-bottom: none;
+  }
+  
+  .news-item::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+  
+  .template-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .template-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+  }
+  
+  .template-name {
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .template-meta {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 0.25rem 0 0 0;
+  }
+  
+  .file-name {
+    font-weight: 500;
+    color: var(--primary-color);
+  }
+  
+  .file-placeholder {
+    color: var(--text-secondary);
+  }
+  
+  .dashboard-main {
+    min-height: calc(100vh - 180px);
+    padding: 1.5rem;
+  }
+  
+  .dashboard-content {
+    margin-bottom: 2rem;
+  }
+  
+  /* Empty states */
+  .empty-dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+  
+  .empty-icon {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+  
+  .empty-dashboard h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+  
+  .empty-dashboard p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+  
+  .upload-redirect-button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .upload-redirect-button:hover {
+    background-color: var(--primary-hover);
+  }
