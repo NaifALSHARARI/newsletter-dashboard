@@ -34,7 +34,7 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  }, []); // إزالة selectedMonth من dependencies
+  }, [selectedMonth]); // إضافة selectedMonth كـ dependency
 
   // تحميل البيانات عند بدء التطبيق فقط
   useEffect(() => {
@@ -43,24 +43,12 @@ function App() {
     // الاشتراك في التغييرات في الوقت الفعلي
     const unsubscribe = databaseService.subscribeToChanges((data) => {
       console.log('تم استلام تحديث من Firebase:', data);
-      setGlobalData(prevData => {
-        // تحديث البيانات مع الحفاظ على الشهر المحدد حالياً
-        const newData = { ...data };
-        return newData;
-      });
+      setGlobalData(data);
     });
 
     // تنظيف الاشتراك عند إنهاء المكون
     return () => unsubscribe();
-  }, []); // dependencies فارغة - التحميل مرة واحدة فقط
-
-  // useEffect منفصل لتعيين الشهر الافتراضي عند توفر البيانات
-  useEffect(() => {
-    if (Object.keys(globalData).length > 0 && !selectedMonth) {
-      const availableMonths = Object.keys(globalData).sort();
-      setSelectedMonth(availableMonths[0]);
-    }
-  }, [globalData, selectedMonth]);
+  }, [loadInitialData]); // إضافة loadInitialData كـ dependency
 
   /**
    * حفظ بيانات شهر جديد
@@ -72,8 +60,8 @@ function App() {
       console.log('حفظ البيانات للشهر:', month, data);
       
       // تحديث البيانات محلياً فوراً
-      setGlobalData(prevData => ({
-        ...prevData,
+      setGlobalData(currentData => ({
+        ...currentData,
         [month]: data
       }));
       setSelectedMonth(month);
@@ -87,8 +75,8 @@ function App() {
       setError('فشل في حفظ البيانات. يرجى المحاولة مرة أخرى.');
       
       // إزالة البيانات المحلية في حالة فشل الحفظ
-      setGlobalData(prevData => {
-        const newData = { ...prevData };
+      setGlobalData(currentData => {
+        const newData = { ...currentData };
         delete newData[month];
         return newData;
       });
@@ -129,8 +117,8 @@ function App() {
   const deleteMonthData = async (month) => {
     try {
       // حذف محلياً
-      setGlobalData(prevData => {
-        const newData = { ...prevData };
+      setGlobalData(currentData => {
+        const newData = { ...currentData };
         delete newData[month];
         return newData;
       });
