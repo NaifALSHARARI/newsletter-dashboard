@@ -34,7 +34,7 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedMonth]); // إضافة selectedMonth كـ dependency
+  }, []); // إزالة selectedMonth من dependencies
 
   // تحميل البيانات عند بدء التطبيق فقط
   useEffect(() => {
@@ -44,11 +44,19 @@ function App() {
     const unsubscribe = databaseService.subscribeToChanges((data) => {
       console.log('تم استلام تحديث من Firebase:', data);
       setGlobalData(data);
+      
+      // تعيين أول شهر متاح إذا لم يكن هناك شهر محدد
+      setSelectedMonth(currentMonth => {
+        if (!currentMonth && Object.keys(data).length > 0) {
+          return Object.keys(data)[0];
+        }
+        return currentMonth;
+      });
     });
 
     // تنظيف الاشتراك عند إنهاء المكون
     return () => unsubscribe();
-  }, [loadInitialData]); // إضافة loadInitialData كـ dependency
+  }, [loadInitialData]);
 
   /**
    * حفظ بيانات شهر جديد
@@ -101,7 +109,7 @@ function App() {
   }, [globalData]);
 
   /**
-   * تغيير الشهر المحدد بشكل آمن
+   * تغيير الشهر المحدد بشكل آمن - بدون إعادة تحميل البيانات
    * @param {string} month - الشهر الجديد
    */
   const handleMonthChange = useCallback((month) => {
@@ -178,7 +186,7 @@ function App() {
       <Dashboard 
         globalData={globalData}
         selectedMonth={selectedMonth}
-        setSelectedMonth={handleMonthChange} // استخدم الدالة الآمنة
+        setSelectedMonth={handleMonthChange}
         storeDataByMonth={storeDataByMonth}
         getDataByMonth={getDataByMonth}
         getAvailableMonths={getAvailableMonths}
