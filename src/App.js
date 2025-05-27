@@ -21,12 +21,6 @@ function App() {
       const data = await databaseService.getAllData();
       setGlobalData(data);
       
-      // تعيين أول شهر متاح كافتراضي فقط إذا لم يكن هناك شهر محدد
-      const availableMonths = Object.keys(data);
-      if (availableMonths.length > 0 && !selectedMonth) {
-        setSelectedMonth(availableMonths[0]);
-      }
-      
       console.log('تم تحميل البيانات الأولية:', data);
     } catch (error) {
       console.error('خطأ في تحميل البيانات الأولية:', error);
@@ -34,7 +28,7 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  }, []); // إزالة selectedMonth من dependencies
+  }, []);
 
   // تحميل البيانات عند بدء التطبيق فقط
   useEffect(() => {
@@ -44,19 +38,19 @@ function App() {
     const unsubscribe = databaseService.subscribeToChanges((data) => {
       console.log('تم استلام تحديث من Firebase:', data);
       setGlobalData(data);
-      
-      // تعيين أول شهر متاح إذا لم يكن هناك شهر محدد
-      setSelectedMonth(currentMonth => {
-        if (!currentMonth && Object.keys(data).length > 0) {
-          return Object.keys(data)[0];
-        }
-        return currentMonth;
-      });
     });
 
     // تنظيف الاشتراك عند إنهاء المكون
     return () => unsubscribe();
   }, [loadInitialData]);
+
+  // تعيين الشهر الافتراضي عند تغيير البيانات
+  useEffect(() => {
+    if (!selectedMonth && Object.keys(globalData).length > 0) {
+      const availableMonths = Object.keys(globalData).sort();
+      setSelectedMonth(availableMonths[0]);
+    }
+  }, [globalData, selectedMonth]);
 
   /**
    * حفظ بيانات شهر جديد
@@ -115,7 +109,6 @@ function App() {
   const handleMonthChange = useCallback((month) => {
     console.log('تغيير الشهر من', selectedMonth, 'إلى', month);
     setSelectedMonth(month);
-    // لا نقوم بإعادة تحميل البيانات، فقط تغيير الشهر المحدد
   }, [selectedMonth]);
 
   /**
