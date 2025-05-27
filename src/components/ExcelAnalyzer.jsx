@@ -12,6 +12,7 @@ const ExcelAnalyzer = ({
   getDataByMonth, 
   getAvailableMonths 
 }) => {
+  // ===== STATE MANAGEMENT =====
   const [isLoading, setIsLoading] = useState(false);
   const [currentData, setCurrentData] = useState(null);
   const [chartData, setChartData] = useState({
@@ -26,11 +27,12 @@ const ExcelAnalyzer = ({
   // Available months for the dropdown
   const availableMonths = getAvailableMonths();
 
+  // ===== CHART DATA LOADERS =====
+  
   // Extract top companies by value from data
   const loadTopValueCompanies = useCallback((data) => {
     console.log("Loading top value companies...");
     
-    // Check if topValueCompanies exists
     if (!data.rawStats.topValueCompanies || 
         !Array.isArray(data.rawStats.topValueCompanies) || 
         data.rawStats.topValueCompanies.length === 0) {
@@ -46,15 +48,11 @@ const ExcelAnalyzer = ({
       return;
     }
     
-    // Get companies from the specific VALUE section
     const valueCompanies = data.rawStats.topValueCompanies.map(company => ({
       name: company.name,
       value: parseFloat(String(company.value || 0).replace(/,/g, '')) || 0
     }));
     
-    console.log("Value companies for chart:", valueCompanies);
-    
-    // Update chart data
     setChartData(prevChartData => ({
       ...prevChartData,
       title: 'TOP COMPANIES BY VALUE',
@@ -69,7 +67,6 @@ const ExcelAnalyzer = ({
   const loadTopVolumeCompanies = useCallback((data) => {
     console.log("Loading top volume companies...");
     
-    // Check if topVolumeCompanies exists
     if (!data.rawStats.topVolumeCompanies || 
         !Array.isArray(data.rawStats.topVolumeCompanies) || 
         data.rawStats.topVolumeCompanies.length === 0) {
@@ -85,15 +82,11 @@ const ExcelAnalyzer = ({
       return;
     }
     
-    // Get companies from the specific VOLUME section
     const volumeCompanies = data.rawStats.topVolumeCompanies.map(company => ({
       name: company.name,
       volume: parseFloat(String(company.volume || 0).replace(/,/g, '')) || 0
     }));
     
-    console.log("Volume companies for chart:", volumeCompanies);
-    
-    // Update chart data
     setChartData(prevChartData => ({
       ...prevChartData,
       title: 'TOP COMPANIES BY VOLUME',
@@ -121,16 +114,15 @@ const ExcelAnalyzer = ({
       return;
     }
     
-    // Extract statistics that can be visualized
     const stats = [];
     for (const key in data.rawStats) {
-      // Skip company arrays and non-numeric values
       if (key === 'topValueCompanies' || key === 'topVolumeCompanies' || 
+          key === 'topFeatureCompanies' || key === 'lowestCompanies' ||
+          key === 'tierClassification' || key === 'sectorBreakdown' ||
           typeof data.rawStats[key] === 'object') continue;
       
       const value = data.rawStats[key];
       if (value !== undefined && value !== null) {
-        // Try to convert to number
         const numValue = parseFloat(String(value).replace(/,/g, ''));
         if (!isNaN(numValue)) {
           stats.push({
@@ -141,19 +133,18 @@ const ExcelAnalyzer = ({
       }
     }
     
-    console.log("Statistics for chart:", stats);
-    
-    // Update chart data with statistics
     setChartData(prevChartData => ({
       ...prevChartData,
       title: 'KEY STATISTICS',
-      data: stats.slice(0, 8), // Limit to avoid cluttered chart
+      data: stats.slice(0, 8),
       xAxisKey: 'name',
       yAxisKey: 'value',
       yAxisLabel: 'Value'
     }));
   }, []);
 
+  // ===== CHART INITIALIZATION =====
+  
   // Initialize chart data based on selected data type
   const initializeChartData = useCallback((dataType, data = currentData) => {
     if (!data || !data.rawStats) return;
@@ -171,20 +162,11 @@ const ExcelAnalyzer = ({
         loadKeyStatistics(data);
         break;
       default:
-        loadTopValueCompanies(data); // Default to value
+        loadTopValueCompanies(data);
     }
   }, [currentData, loadTopValueCompanies, loadTopVolumeCompanies, loadKeyStatistics]);
   
-  // DEBUG: Log the structure of data
-  useEffect(() => {
-    if (currentData) {
-      console.log("Current data structure:", JSON.stringify(currentData, null, 2));
-      if (currentData.rawStats) {
-        console.log("Top VALUE companies count:", currentData.rawStats.topValueCompanies?.length || 0);
-        console.log("Top VOLUME companies count:", currentData.rawStats.topVolumeCompanies?.length || 0);
-      }
-    }
-  }, [currentData]);
+  // ===== EFFECTS =====
   
   // Update current data when selected month changes
   useEffect(() => {
@@ -195,7 +177,6 @@ const ExcelAnalyzer = ({
       if (data && data.rawStats) {
         setIsLoading(true);
         try {
-          // Initialize with top value companies by default
           initializeChartData('topValue', data);
         } catch (error) {
           console.error("Error initializing chart data:", error);
@@ -207,6 +188,8 @@ const ExcelAnalyzer = ({
       setCurrentData(null);
     }
   }, [selectedMonth, globalData, getDataByMonth, initializeChartData]);
+  
+  // ===== EVENT HANDLERS =====
   
   // Handle chart type change (bar/line)
   const handleChartTypeChange = (type) => {
@@ -228,12 +211,13 @@ const ExcelAnalyzer = ({
     setSelectedMonth(month);
   };
   
+  // ===== UTILITY FUNCTIONS =====
+  
   // Format numbers with commas
   const formatValue = (value) => {
     if (value === undefined || value === null) return "—";
     if (typeof value === 'number') return value.toLocaleString();
     if (typeof value === 'string') {
-      // Try to convert string to number and format it
       const numValue = parseFloat(value.replace(/,/g, ''));
       if (!isNaN(numValue)) return numValue.toLocaleString();
       return value;
@@ -241,10 +225,10 @@ const ExcelAnalyzer = ({
     return String(value);
   };
   
+  // ===== RENDER FUNCTIONS =====
+  
   // Render the appropriate chart based on selected type
   const renderChart = () => {
-    console.log("Rendering chart with data:", chartData);
-    
     if (!chartData.data || chartData.data.length === 0) {
       return (
         <div className="chart-placeholder">
@@ -304,6 +288,156 @@ const ExcelAnalyzer = ({
     }
   };
   
+  // ===== TABLE RENDER FUNCTIONS =====
+  
+  // Render main statistics table
+  const renderMainStatisticsTable = () => {
+    if (!currentData || !currentData.rawStats) {
+      return null;
+    }
+    
+    const mainStats = [
+      { key: 'Average Volume Traded', value: currentData.rawStats['Average Volume Traded'] },
+      { key: 'Average Value Traded', value: currentData.rawStats['Average Value Traded'] },
+      { key: 'Sum Volume Traded', value: currentData.rawStats['Sum Volume Traded'] },
+      { key: 'Sum Value Traded', value: currentData.rawStats['Sum Value Traded'] },
+      { key: 'Number of Companies', value: currentData.rawStats['Number of Companies'] },
+      { key: 'Number of Deals', value: currentData.rawStats['Number of Deals'] }
+    ].filter(stat => stat.value !== undefined);
+    
+    if (mainStats.length === 0) return null;
+    
+    return (
+      <div className="data-table-section">
+        <h3 className="section-title">{selectedMonth?.toUpperCase()} 2025 STATISTICS</h3>
+        <div className="table-container">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>STATISTIC</th>
+                <th>VALUE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mainStats.map((stat, index) => (
+                <tr key={`main-stat-${index}`}>
+                  <td>{stat.key}</td>
+                  <td>{formatValue(stat.value)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+  
+  // Render tier classification table with flexible tier name matching
+  const renderTierClassificationTable = () => {
+    if (!currentData || !currentData.rawStats) {
+      return null;
+    }
+    
+    // Extract tier data dynamically from rawStats using flexible matching
+    const tierData = [];
+    
+    // Get all keys that match tier pattern
+    const tierKeys = Object.keys(currentData.rawStats).filter(key => 
+      key.match(/^Tier\s+\d+\s*\([^)]+\)/i)
+    );
+    
+    // Sort tier keys by tier number
+    tierKeys.sort((a, b) => {
+      const tierA = parseInt(a.match(/Tier\s+(\d+)/i)?.[1] || '0');
+      const tierB = parseInt(b.match(/Tier\s+(\d+)/i)?.[1] || '0');
+      return tierA - tierB;
+    });
+    
+    console.log('Found tier keys:', tierKeys);
+    
+    // Build tier data array
+    tierKeys.forEach(tierKey => {
+      const tierMatch = tierKey.match(/^Tier\s+(\d+)\s*\([^)]+\)/i);
+      if (tierMatch) {
+        const tierNumber = tierMatch[1];
+        const tierValue = currentData.rawStats[tierKey];
+        
+        // Get corresponding volume and companies data
+        const tierVolume = currentData.rawStats[`Tier ${tierNumber} Volume`] || 
+                          currentData.rawStats[`Tier${tierNumber}Volume`];
+        const tierCompanies = currentData.rawStats[`Tier ${tierNumber} Companies`] || 
+                             currentData.rawStats[`Tier${tierNumber}Companies`];
+        
+        tierData.push({
+          tier: tierKey, // Use the original tier name as it appears in Excel
+          valueTraded: tierValue,
+          volumeTraded: tierVolume,
+          companiesTraded: tierCompanies
+        });
+        
+        console.log(`Added tier data: ${tierKey}, Value: ${tierValue}, Volume: ${tierVolume}, Companies: ${tierCompanies}`);
+      }
+    });
+    
+    if (tierData.length === 0) {
+      console.warn('No tier data found in rawStats');
+      return null;
+    }
+    
+    // Calculate totals dynamically
+    const totalValueTraded = tierData.reduce((sum, tier) => {
+      const value = parseFloat(String(tier.valueTraded || 0).replace(/,/g, ''));
+      return sum + (isNaN(value) ? 0 : value);
+    }, 0);
+    
+    const totalVolumeTraded = tierData.reduce((sum, tier) => {
+      const value = parseFloat(String(tier.volumeTraded || 0).replace(/,/g, ''));
+      return sum + (isNaN(value) ? 0 : value);
+    }, 0);
+    
+    const totalCompaniesTraded = tierData.reduce((sum, tier) => {
+      const value = parseFloat(String(tier.companiesTraded || 0).replace(/,/g, ''));
+      return sum + (isNaN(value) ? 0 : value);
+    }, 0);
+    
+    return (
+      <div className="data-table-section">
+        <h3 className="section-title">TOTAL OF TIER CLASSIFICATION FOR VALUE TRADED & VOLUME TRADED</h3>
+        <div className="table-container">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Tier Classification</th>
+                <th>Value Traded</th>
+                <th>Volume Traded</th>
+                <th>Number of Companies Traded</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tierData.map((tier, index) => (
+                <tr key={`tier-${index}`}>
+                  <td>{tier.tier}</td>
+                  <td>{formatValue(tier.valueTraded)}</td>
+                  <td>{tier.volumeTraded !== undefined ? formatValue(tier.volumeTraded) : '—'}</td>
+                  <td>{tier.companiesTraded !== undefined ? formatValue(tier.companiesTraded) : '—'}</td>
+                </tr>
+              ))}
+              {/* Total Row - only show if we have meaningful totals */}
+              {(totalValueTraded > 0 || totalVolumeTraded > 0 || totalCompaniesTraded > 0) && (
+                <tr style={{ fontWeight: 'bold', backgroundColor: '#f8f9fa', borderTop: '2px solid #00695c' }}>
+                  <td><strong>Total:</strong></td>
+                  <td><strong>{formatValue(totalValueTraded)}</strong></td>
+                  <td><strong>{totalVolumeTraded > 0 ? formatValue(totalVolumeTraded) : '—'}</strong></td>
+                  <td><strong>{totalCompaniesTraded > 0 ? formatValue(totalCompaniesTraded) : '—'}</strong></td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+  
   // Render the top value companies table
   const renderValueCompaniesTable = () => {
     if (!currentData || !currentData.rawStats || !currentData.rawStats.topValueCompanies) {
@@ -311,7 +445,6 @@ const ExcelAnalyzer = ({
     }
     
     const valueCompanies = currentData.rawStats.topValueCompanies;
-    
     if (valueCompanies.length === 0) return null;
     
     return (
@@ -332,7 +465,7 @@ const ExcelAnalyzer = ({
                 <tr key={`value-${index}`}>
                   <td>{company.name}</td>
                   <td>{formatValue(company.volume)}</td>
-                  <td>${formatValue(company.value)}</td>
+                  <td>{formatValue(company.value)}</td>
                   <td>{formatValue(company.deals)}</td>
                 </tr>
               ))}
@@ -350,7 +483,6 @@ const ExcelAnalyzer = ({
     }
     
     const volumeCompanies = currentData.rawStats.topVolumeCompanies;
-    
     if (volumeCompanies.length === 0) return null;
     
     return (
@@ -371,7 +503,7 @@ const ExcelAnalyzer = ({
                 <tr key={`volume-${index}`}>
                   <td>{company.name}</td>
                   <td>{formatValue(company.volume)}</td>
-                  <td>${formatValue(company.value)}</td>
+                  <td>{formatValue(company.value)}</td>
                   <td>{formatValue(company.deals)}</td>
                 </tr>
               ))}
@@ -381,44 +513,36 @@ const ExcelAnalyzer = ({
       </div>
     );
   };
-  
-  // Render the statistics table
-  const renderStatisticsTable = () => {
-    if (!currentData || !currentData.rawStats) {
+
+  // Render top feature companies table
+  const renderTopFeatureCompaniesTable = () => {
+    if (!currentData || !currentData.rawStats || !currentData.rawStats.topFeatureCompanies) {
       return null;
     }
     
-    // Extract statistics for table display
-    const statistics = [];
-    for (const key in currentData.rawStats) {
-      // Skip company arrays
-      if (key === 'topValueCompanies' || key === 'topVolumeCompanies' || 
-          typeof currentData.rawStats[key] === 'object') continue;
-      
-      statistics.push({
-        statistic: key,
-        value: currentData.rawStats[key]
-      });
-    }
-    
-    if (statistics.length === 0) return null;
+    const featureCompanies = currentData.rawStats.topFeatureCompanies;
+    if (!Array.isArray(featureCompanies) || featureCompanies.length === 0) return null;
     
     return (
       <div className="data-table-section">
-        <h3 className="section-title">Data Preview - {selectedMonth}</h3>
+        <h3 className="section-title">TOP 5 FEATURE HIGHEST TRANSACTIONS OF THE MONTH</h3>
         <div className="table-container">
           <table className="data-table">
             <thead>
               <tr>
-                <th>STATISTIC</th>
-                <th>VALUE</th>
+                <th>COMPANY NAME</th>
+                <th>VOLUME TRADED</th>
+                <th>VALUE TRADED</th>
+                <th>NUMBER OF DEALS</th>
               </tr>
             </thead>
             <tbody>
-              {statistics.map((stat, index) => (
-                <tr key={`stat-${index}`} className={index % 2 === 0 ? 'even-row' : 'odd-row'}>
-                  <td>{stat.statistic}</td>
-                  <td>{formatValue(stat.value)}</td>
+              {featureCompanies.map((company, index) => (
+                <tr key={`feature-${index}`}>
+                  <td>{company.name}</td>
+                  <td>{formatValue(company.volume)}</td>
+                  <td>{formatValue(company.value)}</td>
+                  <td>{formatValue(company.deals)}</td>
                 </tr>
               ))}
             </tbody>
@@ -427,6 +551,80 @@ const ExcelAnalyzer = ({
       </div>
     );
   };
+
+  // Render lowest transactions table
+  const renderLowestTransactionsTable = () => {
+    if (!currentData || !currentData.rawStats || !currentData.rawStats.lowestCompanies) {
+      return null;
+    }
+    
+    const lowestCompanies = currentData.rawStats.lowestCompanies;
+    if (!Array.isArray(lowestCompanies) || lowestCompanies.length === 0) return null;
+    
+    return (
+      <div className="data-table-section">
+        <h3 className="section-title">TOP 5 LOWEST TRANSACTIONS OF THE MONTH</h3>
+        <div className="table-container">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>COMPANY NAME</th>
+                <th>VOLUME TRADED</th>
+                <th>VALUE TRADED</th>
+                <th>NUMBER OF DEALS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lowestCompanies.map((company, index) => (
+                <tr key={`lowest-${index}`}>
+                  <td>{company.name}</td>
+                  <td>{formatValue(company.volume)}</td>
+                  <td>{formatValue(company.value)}</td>
+                  <td>{formatValue(company.deals)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  // Render sector breakdown table
+  const renderSectorBreakdownTable = () => {
+    if (!currentData || !currentData.rawStats || !currentData.rawStats.sectorBreakdown) {
+      return null;
+    }
+    
+    const sectorData = currentData.rawStats.sectorBreakdown;
+    if (!Array.isArray(sectorData) || sectorData.length === 0) return null;
+    
+    return (
+      <div className="data-table-section">
+        <h3 className="section-title">SECTORS</h3>
+        <div className="table-container">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>SECTOR</th>
+                <th>NUMBER OF SECTORS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sectorData.map((sector, index) => (
+                <tr key={`sector-${index}`}>
+                  <td>{sector.sector || sector.name}</td>
+                  <td>{formatValue(sector.count || sector.companies)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+  
+  // ===== MAIN RENDER =====
   
   if (isLoading) {
     return (
@@ -578,11 +776,28 @@ const ExcelAnalyzer = ({
             {renderChart()}
           </div>
           
-          {/* Data Tables */}
+          {/* All Data Tables in Original Excel Order */}
           <div className="data-tables-grid">
+            {/* Main Statistics First */}
+            {renderMainStatisticsTable()}
+            
+            {/* Tier Classification */}
+            {renderTierClassificationTable()}
+            
+            {/* Top 5 Highest Value Traded */}
             {renderValueCompaniesTable()}
+            
+            {/* Top 5 Highest Volume Traded */}
             {renderVolumeCompaniesTable()}
-            {renderStatisticsTable()}
+            
+            {/* Top 5 Feature Highest Transactions */}
+            {renderTopFeatureCompaniesTable()}
+            
+            {/* Top 5 Lowest Transactions */}
+            {renderLowestTransactionsTable()}
+            
+            {/* Sector Breakdown */}
+            {renderSectorBreakdownTable()}
           </div>
         </>
       )}

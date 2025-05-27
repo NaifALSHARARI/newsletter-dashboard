@@ -37,24 +37,13 @@ export const readExcelFile = (file, selectedMonth = 'Mar') => {
           
           console.log("Excel raw data (first 30 rows):", arrays.slice(0, 30));
           
-          // Extract statistics data
-          const statsData = extractStatisticsData(arrays);
-          console.log("Extracted statistics data:", statsData);
+          // Extract all data including tier classification
+          const statsData = extractAllData(arrays);
+          console.log("Extracted all data:", statsData);
           
           // Find monthly data if exists
           const monthlyData = createMonthlyData(arrays, statsData, selectedMonth);
           console.log("Created monthly data:", monthlyData);
-          
-          // Find top companies by value and volume separately
-          const topValueCompanies = findTopCompaniesByValue(arrays);
-          const topVolumeCompanies = findTopCompaniesByVolume(arrays);
-          
-          console.log("Found top VALUE companies:", topValueCompanies);
-          console.log("Found top VOLUME companies:", topVolumeCompanies);
-          
-          // Add company data to statistics
-          statsData.topValueCompanies = topValueCompanies;
-          statsData.topVolumeCompanies = topVolumeCompanies;
           
           // Create dashboard data
           const dashboardData = createDashboardData(statsData, monthlyData, file.name, selectedMonth);
@@ -78,6 +67,112 @@ export const readExcelFile = (file, selectedMonth = 'Mar') => {
       reject(error);
     }
   });
+};
+
+/**
+ * Extract all data from Excel file including tier classification
+ * @param {Array} arrays - Excel data as 2D array
+ * @returns {Object} Extracted data
+ */
+const extractAllData = (arrays) => {
+  let allData = {};
+  
+  if (!arrays || arrays.length === 0) {
+    console.warn("No data in Excel arrays");
+    return allData;
+  }
+  
+  // Extract basic statistics
+  allData = extractStatisticsData(arrays);
+  
+  // Extract tier classification data
+  const tierData = extractTierClassificationData(arrays);
+  Object.assign(allData, tierData);
+  
+  // Extract company lists
+  allData.topValueCompanies = findTopCompaniesByValue(arrays);
+  allData.topVolumeCompanies = findTopCompaniesByVolume(arrays);
+  allData.topFeatureCompanies = findTopFeatureCompanies(arrays);
+  allData.lowestCompanies = findLowestTransactions(arrays);
+  allData.sectorBreakdown = findSectorBreakdown(arrays);
+  
+  return allData;
+};
+
+/**
+ * Extract tier classification data with flexible tier name matching
+ * @param {Array} arrays - Excel data as 2D array
+ * @returns {Object} Tier classification data
+ */
+const extractTierClassificationData = (arrays) => {
+  const tierData = {};
+  
+  // Find tier classification section
+  let tierHeaderIndex = -1;
+  for (let i = 0; i < arrays.length; i++) {
+    const row = arrays[i];
+    if (row && row.length > 0) {
+      const firstCell = String(row[0] || "").toUpperCase();
+      if (firstCell.includes("TOTAL OF TIER CLASSIFICATION")) {
+        tierHeaderIndex = i;
+        console.log(`Found tier classification at row ${i}`);
+        break;
+      }
+    }
+  }
+  
+  if (tierHeaderIndex >= 0) {
+    // Find the actual data rows (skip headers)
+    let dataStartRow = tierHeaderIndex + 2; // Skip "TOTAL OF TIER..." and column headers
+    
+    for (let i = dataStartRow; i < arrays.length; i++) {
+      const row = arrays[i];
+      
+      if (!row || row.length < 4) continue;
+      
+      const tierName = String(row[0] || "").trim();
+      const valueTraded = row[1];
+      const volumeTraded = row[2];
+      const companiesTraded = row[3];
+      
+      // Stop if we reach another section
+      if (tierName.toUpperCase().includes("TOP 5") || 
+          tierName.toUpperCase().includes("COMPANY NAME")) {
+        break;
+      }
+      
+      // Skip empty rows or headers
+      if (!tierName || tierName === "" || 
+          tierName.toUpperCase().includes("TIER CLASSIFICATION")) {
+        continue;
+      }
+      
+      // Check if this is a tier row using regex pattern
+      // This will match "Tier 1 (any_value)" or "Tier 2 (any_value)" etc.
+      const tierMatch = tierName.match(/^Tier\s+(\d+)\s*\([^)]+\)/i);
+      
+      if (tierMatch) {
+        const tierNumber = tierMatch[1];
+        
+        // Store the tier data with the original name as key
+        tierData[tierName] = valueTraded;
+        
+        // Also store with standardized keys for easy access
+        tierData[`Tier ${tierNumber} Volume`] = volumeTraded;
+        tierData[`Tier ${tierNumber} Companies`] = companiesTraded;
+        
+        console.log(`Extracted tier: ${tierName} = Value: ${valueTraded}, Volume: ${volumeTraded}, Companies: ${companiesTraded}`);
+      } else if (tierName.toLowerCase().includes("total")) {
+        // Store total values
+        tierData["Total Value Traded"] = valueTraded;
+        tierData["Total Volume Traded"] = volumeTraded;
+        tierData["Total Companies Traded"] = companiesTraded;
+        console.log(`Extracted totals: Value: ${valueTraded}, Volume: ${volumeTraded}, Companies: ${companiesTraded}`);
+      }
+    }
+  }
+  
+  return tierData;
 };
 
 /**
@@ -118,15 +213,9 @@ const extractStatisticsData = (arrays) => {
         const value = row[1];
         
         if (label && value !== undefined && value !== null) {
-          // Stop when we reach TOP 5 sections
-          if (label.toUpperCase().includes("TOP 5")) {
+          // Stop when we reach TIER section
+          if (label.toUpperCase().includes("TOTAL OF TIER")) {
             break;
-          }
-          
-          // Ignore sub-headers
-          if (label.toUpperCase().includes("TOTAL OF TIER") || 
-              label.toUpperCase().includes("CLASSIFICATION")) {
-            continue;
           }
           
           statsData[label] = value;
@@ -165,25 +254,18 @@ const findTopCompaniesByValue = (arrays) => {
   }
   
   if (valueHeaderIndex >= 0) {
-    // Skip the header row and column headers to get to the data
-    let dataStartRow = valueHeaderIndex + 2; // Skip "TOP 5..." and "Company Name, Volume Traded, ..."
+    let dataStartRow = valueHeaderIndex + 2;
     
-    // Extract company data from VALUE section
     for (let i = dataStartRow; i < arrays.length; i++) {
       const row = arrays[i];
       
-      // Stop when we reach another section or empty row
-      if (!row || row.length === 0) {
-        break;
-      }
+      if (!row || row.length === 0) break;
       
-      // Check if we've reached another TOP 5 section
       const firstCell = String(row[0] || "").toUpperCase();
       if (firstCell.includes("TOP 5") && !firstCell.includes("HIGHEST VALUE")) {
         break;
       }
       
-      // Extract company data
       if (row && row.length >= 4) {
         const companyName = row[0];
         const volumeTraded = row[1];
@@ -205,12 +287,10 @@ const findTopCompaniesByValue = (arrays) => {
         }
       }
       
-      // Limit to 5 companies
       if (companies.length >= 5) break;
     }
   }
   
-  console.log(`Found ${companies.length} VALUE companies:`, companies);
   return companies;
 };
 
@@ -238,25 +318,18 @@ const findTopCompaniesByVolume = (arrays) => {
   }
   
   if (volumeHeaderIndex >= 0) {
-    // Skip the header row and column headers to get to the data
-    let dataStartRow = volumeHeaderIndex + 2; // Skip "TOP 5..." and "Company Name, Volume Traded, ..."
+    let dataStartRow = volumeHeaderIndex + 2;
     
-    // Extract company data from VOLUME section
     for (let i = dataStartRow; i < arrays.length; i++) {
       const row = arrays[i];
       
-      // Stop when we reach another section or empty row
-      if (!row || row.length === 0) {
-        break;
-      }
+      if (!row || row.length === 0) break;
       
-      // Check if we've reached another TOP 5 section
       const firstCell = String(row[0] || "").toUpperCase();
       if (firstCell.includes("TOP 5") && !firstCell.includes("HIGHEST VOLUME")) {
         break;
       }
       
-      // Extract company data
       if (row && row.length >= 4) {
         const companyName = row[0];
         const volumeTraded = row[1];
@@ -278,13 +351,153 @@ const findTopCompaniesByVolume = (arrays) => {
         }
       }
       
-      // Limit to 5 companies
       if (companies.length >= 5) break;
     }
   }
   
-  console.log(`Found ${companies.length} VOLUME companies:`, companies);
   return companies;
+};
+
+/**
+ * Find top feature companies
+ * @param {Array} arrays - Excel data as 2D array
+ * @returns {Array} Top feature companies data
+ */
+const findTopFeatureCompanies = (arrays) => {
+  const companies = [];
+  
+  let featureHeaderIndex = -1;
+  for (let i = 0; i < arrays.length; i++) {
+    const row = arrays[i];
+    if (row && row.length > 0) {
+      const firstCell = String(row[0] || "").toUpperCase();
+      if (firstCell.includes("TOP 5 FEATURE HIGHEST TRANSACTIONS")) {
+        featureHeaderIndex = i;
+        break;
+      }
+    }
+  }
+  
+  if (featureHeaderIndex >= 0) {
+    let dataStartRow = featureHeaderIndex + 2;
+    
+    for (let i = dataStartRow; i < arrays.length && companies.length < 5; i++) {
+      const row = arrays[i];
+      
+      if (!row || row.length === 0) break;
+      
+      const firstCell = String(row[0] || "").toUpperCase();
+      if (firstCell.includes("TOP 5") && !firstCell.includes("FEATURE")) {
+        break;
+      }
+      
+      if (row && row.length >= 4) {
+        const companyName = row[0];
+        if (companyName && companyName !== "" && companyName !== "Company Name") {
+          companies.push({
+            name: companyName,
+            volume: row[1] || 0,
+            value: row[2] || 0,
+            deals: row[3] || 0
+          });
+        }
+      }
+    }
+  }
+  
+  return companies;
+};
+
+/**
+ * Find lowest transactions
+ * @param {Array} arrays - Excel data as 2D array
+ * @returns {Array} Lowest transactions data
+ */
+const findLowestTransactions = (arrays) => {
+  const companies = [];
+  
+  let lowestHeaderIndex = -1;
+  for (let i = 0; i < arrays.length; i++) {
+    const row = arrays[i];
+    if (row && row.length > 0) {
+      const firstCell = String(row[0] || "").toUpperCase();
+      if (firstCell.includes("TOP 5 LOWEST TRANSACTIONS")) {
+        lowestHeaderIndex = i;
+        break;
+      }
+    }
+  }
+  
+  if (lowestHeaderIndex >= 0) {
+    let dataStartRow = lowestHeaderIndex + 2;
+    
+    for (let i = dataStartRow; i < arrays.length && companies.length < 5; i++) {
+      const row = arrays[i];
+      
+      if (!row || row.length === 0) break;
+      
+      const firstCell = String(row[0] || "").toUpperCase();
+      if (firstCell.includes("LIST") || firstCell.includes("SECTOR")) {
+        break;
+      }
+      
+      if (row && row.length >= 4) {
+        const companyName = row[0];
+        if (companyName && companyName !== "" && companyName !== "Company Name") {
+          companies.push({
+            name: companyName,
+            volume: row[1] || 0,
+            value: row[2] || 0,
+            deals: row[3] || 0
+          });
+        }
+      }
+    }
+  }
+  
+  return companies;
+};
+
+/**
+ * Find sector breakdown
+ * @param {Array} arrays - Excel data as 2D array
+ * @returns {Array} Sector breakdown data
+ */
+const findSectorBreakdown = (arrays) => {
+  const sectors = [];
+  
+  let sectorHeaderIndex = -1;
+  for (let i = 0; i < arrays.length; i++) {
+    const row = arrays[i];
+    if (row && row.length > 0) {
+      const firstCell = String(row[0] || "").toUpperCase();
+      if (firstCell.includes("SECTORS:") || 
+          (firstCell.includes("SECTOR") && !firstCell.includes("TOP"))) {
+        sectorHeaderIndex = i;
+        break;
+      }
+    }
+  }
+  
+  if (sectorHeaderIndex >= 0) {
+    for (let i = sectorHeaderIndex + 1; i < arrays.length; i++) {
+      const row = arrays[i];
+      
+      if (!row || row.length < 2) break;
+      
+      const sectorName = row[0];
+      const sectorCount = row[1];
+      
+      if (sectorName && sectorName !== "" && sectorName !== "SECTORS:") {
+        sectors.push({
+          sector: sectorName,
+          count: sectorCount || 0
+        });
+      }
+    }
+  }
+  
+  return sectors;
 };
 
 /**
@@ -303,28 +516,22 @@ const createMonthlyData = (arrays, statsData, selectedMonth = 'Mar') => {
     return [];
   }
   
-  // Previous month (or December if selected month is January)
   const prevMonthIndex = monthIndex > 0 ? monthIndex - 1 : 11;
   const prevMonth = months[prevMonthIndex].charAt(0).toUpperCase() + months[prevMonthIndex].slice(1);
   
-  // Next month (or January if selected month is December)
   const nextMonthIndex = monthIndex < 11 ? monthIndex + 1 : 0;
   const nextMonth = months[nextMonthIndex].charAt(0).toUpperCase() + months[nextMonthIndex].slice(1);
   
-  // Extract or estimate data for selected month
   const currentMonthDeals = statsData["Number of Deals"] || 0;
   const currentMonthValue = statsData["Sum Value Traded"] || 0;
   
-  // Convert to numeric values
   const currentMonthDealsNum = parseFloat(String(currentMonthDeals).replace(/,/g, '')) || 530;
   const currentMonthValueNum = parseFloat(String(currentMonthValue).replace(/,/g, '')) || 3263603382.81;
-  const currentMonthProfit = Math.round(currentMonthValueNum / 1000000); // Convert to millions
+  const currentMonthProfit = Math.round(currentMonthValueNum / 1000000);
   
-  // Previous month data (estimate as 85% of current month)
   const prevMonthDeals = Math.round(currentMonthDealsNum * 0.85);
   const prevMonthProfit = Math.round(currentMonthProfit * 0.85);
   
-  // Next month has no data
   const nextMonthDeals = 0;
   const nextMonthProfit = 0;
   
@@ -344,7 +551,6 @@ const createMonthlyData = (arrays, statsData, selectedMonth = 'Mar') => {
  * @returns {Object} Dashboard data
  */
 const createDashboardData = (statsData, monthlyData, fileName, selectedMonth = 'Mar') => {
-  // Extract basic values from statistics data
   const sumVolumeTraded = statsData["Sum Volume Traded"] || 0;
   const sumValueTraded = statsData["Sum Value Traded"] || 0;
   const numCompanies = statsData["Number of Companies"] || 0;
@@ -352,25 +558,20 @@ const createDashboardData = (statsData, monthlyData, fileName, selectedMonth = '
   
   console.log(`Key values from Excel: Volume=${sumVolumeTraded}, Value=${sumValueTraded}, Companies=${numCompanies}, Deals=${numDeals}`);
   
-  // Create or use monthly data
   let finalMonthlyData = monthlyData;
   
-  // Trade performance data
   const tradePerformance = [
     { category: 'Successful', value: 65, color: '#4CAF50' },
     { category: 'Break-even', value: 20, color: '#2196F3' },
     { category: 'Loss', value: 15, color: '#F44336' }
   ];
   
-  // Format numbers
   const formatNumber = (num) => {
     return String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
   
-  // Statistics month
   const statsMonth = selectedMonth.toUpperCase() + " 2025";
   
-  // Create news updates
   const topNews = [
     `Block Trading Summary for ${statsMonth}`,
     `Sum Volume Traded: ${formatNumber(sumVolumeTraded)}`,
