@@ -46,14 +46,17 @@ function App() {
       setGlobalData(data);
       
       // تعيين أول شهر متاح إذا لم يكن هناك شهر محدد
-      if (!selectedMonth && Object.keys(data).length > 0) {
-        setSelectedMonth(Object.keys(data)[0]);
-      }
+      setSelectedMonth(currentMonth => {
+        if (!currentMonth && Object.keys(data).length > 0) {
+          return Object.keys(data)[0];
+        }
+        return currentMonth;
+      });
     });
 
     // تنظيف الاشتراك عند إنهاء المكون
     return () => unsubscribe();
-  }, [loadInitialData]); // الاحتفاظ بـ loadInitialData فقط
+  }, [loadInitialData]);
 
   /**
    * حفظ بيانات شهر جديد
@@ -183,7 +186,7 @@ function App() {
       <Dashboard 
         globalData={globalData}
         selectedMonth={selectedMonth}
-        setSelectedMonth={handleMonthChange} // استخدم الدالة الآمنة
+        setSelectedMonth={handleMonthChange}
         storeDataByMonth={storeDataByMonth}
         getDataByMonth={getDataByMonth}
         getAvailableMonths={getAvailableMonths}
