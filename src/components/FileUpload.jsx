@@ -117,20 +117,6 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
     }
   };
 
-  // Available templates
-  const templates = [
-    {
-      name: "March Newsletter 2025.xlsx",
-      size: "21 KB",
-      type: "Template"
-    },
-    {
-      name: "Trading Data Template.xlsx",
-      size: "18 KB",
-      type: "Template"
-    }
-  ];
-
   return (
     <div className="file-upload-container">
       <div className="upload-section">
@@ -389,33 +375,6 @@ const FileUpload = ({ onDataProcessed, selectedMonth, setSelectedMonth }) => {
             </div>
           </div>
         )}
-      </div>
-      
-      <div className="templates-section">
-        <h3 className="subsection-title">Available Template Files</h3>
-        <div className="templates-list">
-          {templates.map((template, index) => (
-            <div key={index} className="template-item">
-              <div className="template-icon">
-                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zM16 18H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/>
-                </svg>
-              </div>
-              <div className="template-info">
-                <p className="template-name">{template.name}</p>
-                <p className="template-meta">{template.size} • {template.type}</p>
-              </div>
-              <button className="download-button">
-                <span className="download-icon">
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/>
-                  </svg>
-                </span>
-                Download Template
-              </button>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
