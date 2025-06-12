@@ -318,7 +318,7 @@ const Dashboard = ({
             <h1 className="logo" style={{ display: 'none' }}>AWRAAQI</h1>
           </div>
           <div className="title-section">
-            <h1 className="dashboard-title">Trading Newsletter Dashboard</h1>
+            <h1 className="dashboard-title">Newsletter Dashboard</h1>
           </div>
         </div>
       </header>
