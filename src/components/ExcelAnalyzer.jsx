@@ -637,72 +637,6 @@ const ExcelAnalyzer = ({
   
   return (
     <div className="excel-analyzer-container">
-      <div className="analyzer-header">
-        <h2 className="analyzer-title">Newsletter Data Analyzer</h2>
-        
-        {/* Month Filter */}
-        <div className="month-filter-section" style={{ 
-          marginTop: '1rem',
-          padding: '1rem',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '8px',
-          border: '1px solid #e9ecef'
-        }}>
-          <label 
-            htmlFor="analysis-month-select" 
-            style={{ 
-              display: 'block', 
-              marginBottom: '0.5rem',
-              fontWeight: '600',
-              color: '#495057'
-            }}
-          >
-            Select Month to Analyze:
-          </label>
-          <select 
-            id="analysis-month-select"
-            value={selectedMonth}
-            onChange={(e) => handleMonthChange(e.target.value)}
-            style={{ 
-              width: '200px',
-              padding: '0.5rem',
-              borderRadius: '4px',
-              border: '1px solid #ced4da',
-              backgroundColor: 'white',
-              color: '#495057'
-            }}
-          >
-            <option value="">-- Select Month --</option>
-            {availableMonths.map((month) => (
-              <option key={month} value={month}>
-                {month === 'Jan' && 'January'}
-                {month === 'Feb' && 'February'}
-                {month === 'Mar' && 'March'}
-                {month === 'Apr' && 'April'}
-                {month === 'May' && 'May'}
-                {month === 'Jun' && 'June'}
-                {month === 'Jul' && 'July'}
-                {month === 'Aug' && 'August'}
-                {month === 'Sep' && 'September'}
-                {month === 'Oct' && 'October'}
-                {month === 'Nov' && 'November'}
-                {month === 'Dec' && 'December'}
-              </option>
-            ))}
-          </select>
-          
-          {availableMonths.length > 0 && (
-            <div style={{ 
-              marginTop: '0.5rem', 
-              fontSize: '0.875rem', 
-              color: '#6c757d' 
-            }}>
-              Available months: {availableMonths.join(', ')}
-            </div>
-          )}
-        </div>
-      </div>
-      
       {!selectedMonth ? (
         <div className="empty-data">
           <div className="empty-icon">
@@ -725,48 +659,87 @@ const ExcelAnalyzer = ({
         </div>
       ) : (
         <>
-          {/* Chart Controls */}
+          {/* Chart Controls with Month Selector */}
           <div className="controls-section">
-            <div className="control-tabs">
-              <button 
-                className={`control-tab ${chartData.title === 'TOP COMPANIES BY VALUE' ? 'active' : ''}`}
-                onClick={() => handleDataChange('topValue')}
+            {/* Month Selector */}
+            <div className="month-selector-container">
+              <label htmlFor="analysis-month-select" className="month-selector-label">
+                Select Month to Analyze:
+              </label>
+              <select 
+                id="analysis-month-select"
+                value={selectedMonth}
+                onChange={(e) => handleMonthChange(e.target.value)}
+                className="month-selector"
               >
-                Top Companies by Value
-              </button>
-              <button 
-                className={`control-tab ${chartData.title === 'TOP COMPANIES BY VOLUME' ? 'active' : ''}`}
-                onClick={() => handleDataChange('topVolume')}
-              >
-                Top Companies by Volume
-              </button>
-              <button 
-                className={`control-tab ${chartData.title === 'KEY STATISTICS' ? 'active' : ''}`}
-                onClick={() => handleDataChange('statistics')}
-              >
-                Key Statistics
-              </button>
+                <option value="">-- Select Month --</option>
+                {availableMonths.map((month) => (
+                  <option key={month} value={month}>
+                    {month === 'Jan' && 'January'}
+                    {month === 'Feb' && 'February'}
+                    {month === 'Mar' && 'March'}
+                    {month === 'Apr' && 'April'}
+                    {month === 'May' && 'May'}
+                    {month === 'Jun' && 'June'}
+                    {month === 'Jul' && 'July'}
+                    {month === 'Aug' && 'August'}
+                    {month === 'Sep' && 'September'}
+                    {month === 'Oct' && 'October'}
+                    {month === 'Nov' && 'November'}
+                    {month === 'Dec' && 'December'}
+                  </option>
+                ))}
+              </select>
+              
+              {availableMonths.length > 0 && (
+                <div className="available-months-info">
+                  Available months: {availableMonths.join(', ')}
+                </div>
+              )}
             </div>
-            
-            <div className="chart-type-controls">
-              <button 
-                className={`chart-type-button ${chartData.type === 'bar' ? 'active' : ''}`}
-                onClick={() => handleChartTypeChange('bar')}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Bar Chart
-              </button>
-              <button 
-                className={`chart-type-button ${chartData.type === 'line' ? 'active' : ''}`}
-                onClick={() => handleChartTypeChange('line')}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 12h18M7 5v14M17 5v14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Line Chart
-              </button>
+
+            <div className="control-tabs-row">
+              <div className="control-tabs">
+                <button 
+                  className={`control-tab ${chartData.title === 'TOP COMPANIES BY VALUE' ? 'active' : ''}`}
+                  onClick={() => handleDataChange('topValue')}
+                >
+                  Top Companies by Value
+                </button>
+                <button 
+                  className={`control-tab ${chartData.title === 'TOP COMPANIES BY VOLUME' ? 'active' : ''}`}
+                  onClick={() => handleDataChange('topVolume')}
+                >
+                  Top Companies by Volume
+                </button>
+                <button 
+                  className={`control-tab ${chartData.title === 'KEY STATISTICS' ? 'active' : ''}`}
+                  onClick={() => handleDataChange('statistics')}
+                >
+                  Key Statistics
+                </button>
+              </div>
+              
+              <div className="chart-type-controls">
+                <button 
+                  className={`chart-type-button ${chartData.type === 'bar' ? 'active' : ''}`}
+                  onClick={() => handleChartTypeChange('bar')}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Bar Chart
+                </button>
+                <button 
+                  className={`chart-type-button ${chartData.type === 'line' ? 'active' : ''}`}
+                  onClick={() => handleChartTypeChange('line')}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 12h18M7 5v14M17 5v14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Line Chart
+                </button>
+              </div>
             </div>
           </div>
           

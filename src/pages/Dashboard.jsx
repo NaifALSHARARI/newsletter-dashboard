@@ -17,15 +17,7 @@ const Dashboard = ({
   const [activeTab, setActiveTab] = useState('dashboard');
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  
-  // أخبار التداول - يمكن تحديثها من خلال واجهة إدارة أو API
-  const [tradingNews] = useState([
-    "Saudi market records 2.5% increase in today's trading session",
-    "Aramco announces strong Q4 results exceeding expectations",
-    "Banking sector leads gains with 3.2% rise",
-    "150M shares traded worth 4.2B SAR today",
-    "General index closes at 12,850 points"
-  ]);
+  const [selectedTabMonth, setSelectedTabMonth] = useState(null);
 
   // تحديث البيانات عند تغيير الشهر المحدد
   useEffect(() => {
@@ -37,6 +29,14 @@ const Dashboard = ({
       return () => clearTimeout(timeoutId);
     }
   }, [selectedMonth, globalData]);
+
+  // تحديث التاب المحدد عند تغيير البيانات المتاحة
+  useEffect(() => {
+    const availableMonths = getAvailableMonths();
+    if (availableMonths.length > 0 && !selectedTabMonth) {
+      setSelectedTabMonth(availableMonths[0]);
+    }
+  }, [getAvailableMonths, selectedTabMonth]);
 
   // معالجة البيانات المرفوعة
   const handleDataProcessed = useCallback((newData, month) => {
@@ -150,108 +150,104 @@ const Dashboard = ({
     );
   }, [getCurrentMonthData, formatNumber]);
 
-  // عرض الأخبار الحقيقية التي يضعها المستخدم
-  const renderTradingNews = useCallback(() => {
-    return (
-      <div className="dashboard-card news-card">
-        <h3>📈 Today's Trading News</h3>
-        <ul className="news-list">
-          {tradingNews.map((item, index) => (
-            <li key={index} className="news-item">{item}</li>
-          ))}
-        </ul>
-        <div className="news-footer">
-          <small style={{ color: '#666', fontSize: '0.85rem' }}>
-            Last updated: {new Date().toLocaleDateString('en-US')} - {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-          </small>
-        </div>
-      </div>
-    );
-  }, [tradingNews]);
-
-
-
   // محتوى Dashboard الرئيسي مع البيانات الحقيقية
   const renderMainDashboard = useCallback(() => {
     const availableMonths = getAvailableMonths();
     
     return (
       <div className="main-dashboard-content">
-        {/* ملخص البيانات المرفوعة */}
+        {/* ملخص البيانات المرفوعة كتابات */}
         {availableMonths.length > 0 && (
           <div className="dashboard-card full-width uploaded-data-summary">
             <h3>📋 Uploaded Data Summary</h3>
-            <div className="uploaded-months-grid">
-              {availableMonths.map(month => {
-                const monthData = getDataByMonth(month);
-                const isSelected = month === selectedMonth;
-                return (
-                  <div 
-                    key={month} 
-                    className={`month-summary-card ${isSelected ? 'selected' : ''}`}
-                  >
-                    <h4>{month} 2025</h4>
-                    <div className="month-stats">
-                      <div className="stat-item">
-                        <span className="stat-label">Average Volume Traded</span>
-                        <span className="stat-value">
-                          {formatNumber(getStatValue(monthData, "Average Volume Traded"))}
-                        </span>
-                      </div>
-                      
-                      <div className="stat-item">
-                        <span className="stat-label">Average Value Traded</span>
-                        <span className="stat-value">
-                          {formatNumber(getStatValue(monthData, "Average Value Traded"))}
-                        </span>
-                      </div>
-                      
-                      <div className="stat-item">
-                        <span className="stat-label">Sum Volume Traded</span>
-                        <span className="stat-value">
-                          {formatNumber(getStatValue(monthData, "Sum Volume Traded"))}
-                        </span>
-                      </div>
-                      
-                      <div className="stat-item">
-                        <span className="stat-label">Sum Value Traded</span>
-                        <span className="stat-value">
-                          {formatNumber(getStatValue(monthData, "Sum Value Traded"))}
-                        </span>
-                      </div>
-                      
-                      <div className="stat-item">
-                        <span className="stat-label">Number of Companies</span>
-                        <span className="stat-value">
-                          {formatNumber(getStatValue(monthData, "Number of Companies"))}
-                        </span>
-                      </div>
-                      
-                      <div className="stat-item">
-                        <span className="stat-label">Number of Deals</span>
-                        <span className="stat-value">
-                          {formatNumber(getStatValue(monthData, "Number of Deals"))}
-                        </span>
-                      </div>
-                    </div>
-                    <button 
-                      className="view-details-btn"
-                      onClick={() => {
-                        setSelectedMonth(month);
-                        setActiveTab('analysis');
-                      }}
-                    >
-                      View Details
-                    </button>
-                  </div>
-                );
-              })}
+            
+            {/* تابات الشهور */}
+            <div className="months-tabs">
+              {availableMonths.map(month => (
+                <button
+                  key={month}
+                  className={`month-tab ${selectedTabMonth === month ? 'active' : ''}`}
+                  onClick={() => setSelectedTabMonth(month)}
+                >
+                  {month === 'Jan' && 'January'}
+                  {month === 'Feb' && 'February'}
+                  {month === 'Mar' && 'March'}
+                  {month === 'Apr' && 'April'}
+                  {month === 'May' && 'May'}
+                  {month === 'Jun' && 'June'}
+                  {month === 'Jul' && 'July'}
+                  {month === 'Aug' && 'August'}
+                  {month === 'Sep' && 'September'}
+                  {month === 'Oct' && 'October'}
+                  {month === 'Nov' && 'November'}
+                  {month === 'Dec' && 'December'}
+                  {' 2025'}
+                </button>
+              ))}
             </div>
+            
+            {/* محتوى التاب المحدد */}
+            {selectedTabMonth && (
+              <div className="month-tab-content">
+                <div className="month-stats-grid">
+                  <div className="stat-item">
+                    <span className="stat-label">Average Volume Traded</span>
+                    <span className="stat-value">
+                      {formatNumber(getStatValue(getDataByMonth(selectedTabMonth), "Average Volume Traded"))}
+                    </span>
+                  </div>
+                  
+                  <div className="stat-item">
+                    <span className="stat-label">Average Value Traded</span>
+                    <span className="stat-value">
+                      {formatNumber(getStatValue(getDataByMonth(selectedTabMonth), "Average Value Traded"))}
+                    </span>
+                  </div>
+                  
+                  <div className="stat-item">
+                    <span className="stat-label">Sum Volume Traded</span>
+                    <span className="stat-value">
+                      {formatNumber(getStatValue(getDataByMonth(selectedTabMonth), "Sum Volume Traded"))}
+                    </span>
+                  </div>
+                  
+                  <div className="stat-item">
+                    <span className="stat-label">Sum Value Traded</span>
+                    <span className="stat-value">
+                      {formatNumber(getStatValue(getDataByMonth(selectedTabMonth), "Sum Value Traded"))}
+                    </span>
+                  </div>
+                  
+                  <div className="stat-item">
+                    <span className="stat-label">Number of Companies</span>
+                    <span className="stat-value">
+                      {formatNumber(getStatValue(getDataByMonth(selectedTabMonth), "Number of Companies"))}
+                    </span>
+                  </div>
+                  
+                  <div className="stat-item">
+                    <span className="stat-label">Number of Deals</span>
+                    <span className="stat-value">
+                      {formatNumber(getStatValue(getDataByMonth(selectedTabMonth), "Number of Deals"))}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="tab-actions">
+                  <button 
+                    className="analyze-month-btn"
+                    onClick={() => {
+                      setSelectedMonth(selectedTabMonth);
+                      setActiveTab('analysis');
+                    }}
+                  >
+                    VIEW DETAILS
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
-
-        {/* Trading News بالبيانات الحقيقية */}
-        {renderTradingNews()}
 
         {/* Top Companies بالبيانات الحقيقية */}
         {renderTopCompanies()}
@@ -297,7 +293,8 @@ const Dashboard = ({
     setSelectedMonth, 
     setActiveTab,
     selectedMonth,
-    renderTradingNews,
+    selectedTabMonth,
+    setSelectedTabMonth,
     renderTopCompanies
   ]);
 
@@ -307,7 +304,7 @@ const Dashboard = ({
         <div className="header-content">
           <div className="logo-section">
             <img 
-              src="/logo.png" 
+              src="/4321.png" 
               alt="AWRAAQI Logo" 
               className="header-logo"
               onError={(e) => {
@@ -318,7 +315,7 @@ const Dashboard = ({
             <h1 className="logo" style={{ display: 'none' }}>AWRAAQI</h1>
           </div>
           <div className="title-section">
-            <h1 className="dashboard-title">Newsletter Dashboard</h1>
+            <h1 className="dashboard-title">Block Data</h1>
           </div>
         </div>
       </header>
