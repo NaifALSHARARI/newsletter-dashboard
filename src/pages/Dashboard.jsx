@@ -1,4 +1,3 @@
-// بداية الملف
 import React, { useState, useEffect, useCallback } from 'react';
 import ExcelAnalyzer from '../components/ExcelAnalyzer';
 import FileUpload from '../components/FileUpload';
@@ -25,7 +24,6 @@ const Dashboard = ({
       const timeoutId = setTimeout(() => {
         setDashboardData(globalData[selectedMonth]);
       }, 0);
-      
       return () => clearTimeout(timeoutId);
     }
   }, [selectedMonth, globalData]);
@@ -37,38 +35,34 @@ const Dashboard = ({
     }
   }, [getAvailableMonths, selectedTabMonth]);
 
-  // ✅ تم التعديل هنا بإضافة selectedMonth
+  // ✅ التعديل هنا: إزالة selectedMonth من التبعيات
   const handleDataProcessed = useCallback((newData, month) => {
     console.log('Processed data received:', newData, 'for month:', month);
-    
+
     if (!newData || !newData.monthlyData || !newData.tradePerformance || !newData.topNews) {
       console.error('Received incomplete data:', newData);
       return;
     }
-    
+
     storeDataByMonth(month, newData);
-    
+
     requestAnimationFrame(() => {
       setDashboardData(newData);
     });
-    
+
     setIsLoading(true);
     setTimeout(() => {
       setActiveTab('analysis');
       setIsLoading(false);
     }, 800);
-  }, [storeDataByMonth, selectedMonth]); // <-- ✅ تمت الإضافة هنا
+  }, [storeDataByMonth]);
 
   const formatNumber = useCallback((num) => {
     if (!num) return "N/A";
     const number = parseFloat(num.toString().replace(/,/g, ''));
-    if (number >= 1000000000) {
-      return (number / 1000000000).toFixed(1) + 'B';
-    } else if (number >= 1000000) {
-      return (number / 1000000).toFixed(1) + 'M';
-    } else if (number >= 1000) {
-      return (number / 1000).toFixed(1) + 'K';
-    }
+    if (number >= 1e9) return (number / 1e9).toFixed(1) + 'B';
+    if (number >= 1e6) return (number / 1e6).toFixed(1) + 'M';
+    if (number >= 1e3) return (number / 1e3).toFixed(1) + 'K';
     return number.toLocaleString();
   }, []);
 
@@ -81,20 +75,17 @@ const Dashboard = ({
     if (selectedMonth && globalData[selectedMonth]) {
       return globalData[selectedMonth];
     }
-    
     const availableMonths = getAvailableMonths();
     if (availableMonths.length > 0) {
       const latestMonth = availableMonths[availableMonths.length - 1];
       return globalData[latestMonth];
     }
-    
     return null;
   }, [globalData, getAvailableMonths, selectedMonth]);
 
   const renderTopCompanies = useCallback(() => {
     const currentData = getCurrentMonthData();
-    
-    if (!currentData || !currentData.rawStats || !currentData.rawStats.topValueCompanies) {
+    if (!currentData?.rawStats?.topValueCompanies) {
       return (
         <div className="dashboard-card top-stocks">
           <h3>🏆 Top Companies by Value</h3>
@@ -123,9 +114,7 @@ const Dashboard = ({
             <tbody>
               {topCompanies.map((company, index) => (
                 <tr key={index} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                  <td style={{ padding: '12px 10px', fontWeight: '500' }}>
-                    {company.name}
-                  </td>
+                  <td style={{ padding: '12px 10px', fontWeight: '500' }}>{company.name}</td>
                   <td style={{ padding: '12px 10px', textAlign: 'right', color: '#666' }}>
                     {formatNumber(company.volume)}
                   </td>
@@ -146,7 +135,7 @@ const Dashboard = ({
 
   const renderMainDashboard = useCallback(() => {
     const availableMonths = getAvailableMonths();
-    
+
     return (
       <div className="main-dashboard-content">
         {availableMonths.length > 0 && (
@@ -159,19 +148,7 @@ const Dashboard = ({
                   className={`month-tab ${selectedTabMonth === month ? 'active' : ''}`}
                   onClick={() => setSelectedTabMonth(month)}
                 >
-                  {month === 'Jan' && 'January'}
-                  {month === 'Feb' && 'February'}
-                  {month === 'Mar' && 'March'}
-                  {month === 'Apr' && 'April'}
-                  {month === 'May' && 'May'}
-                  {month === 'Jun' && 'June'}
-                  {month === 'Jul' && 'July'}
-                  {month === 'Aug' && 'August'}
-                  {month === 'Sep' && 'September'}
-                  {month === 'Oct' && 'October'}
-                  {month === 'Nov' && 'November'}
-                  {month === 'Dec' && 'December'}
-                  {' 2025'}
+                  {month} 2025
                 </button>
               ))}
             </div>
@@ -215,18 +192,9 @@ const Dashboard = ({
         <div className="dashboard-card full-width">
           <h3>💡 Tips & Recommendations</h3>
           <div className="tips-grid">
-            <div className="tip-item">
-              <h4>Data Analysis</h4>
-              <p>Use the Data Analysis tab to explore detailed statistics and charts</p>
-            </div>
-            <div className="tip-item">
-              <h4>Monthly Comparison</h4>
-              <p>Upload multiple months to compare performance trends</p>
-            </div>
-            <div className="tip-item">
-              <h4>Export Reports</h4>
-              <p>Generate reports from the Reports tab for presentations</p>
-            </div>
+            <div className="tip-item"><h4>Data Analysis</h4><p>Use the Data Analysis tab to explore detailed statistics and charts</p></div>
+            <div className="tip-item"><h4>Monthly Comparison</h4><p>Upload multiple months to compare performance trends</p></div>
+            <div className="tip-item"><h4>Export Reports</h4><p>Generate reports from the Reports tab for presentations</p></div>
           </div>
         </div>
 
@@ -234,26 +202,15 @@ const Dashboard = ({
           <div className="dashboard-card full-width cta-card">
             <h3>🚀 Start Analyzing Your Data</h3>
             <p>Upload your newsletter Excel file to begin analysis and see real market data.</p>
-            <button 
-              className="cta-button"
-              onClick={() => setActiveTab('upload')}
-            >
-              Upload Data Now
-            </button>
+            <button className="cta-button" onClick={() => setActiveTab('upload')}>Upload Data Now</button>
           </div>
         )}
       </div>
     );
   }, [
-    getAvailableMonths, 
-    getDataByMonth, 
-    formatNumber, 
-    getStatValue, 
-    setSelectedMonth, 
-    setActiveTab,
-    selectedTabMonth,
-    setSelectedTabMonth,
-    renderTopCompanies
+    getAvailableMonths, getDataByMonth, formatNumber,
+    getStatValue, setSelectedMonth, setActiveTab,
+    selectedTabMonth, setSelectedTabMonth, renderTopCompanies
   ]);
 
   return (
@@ -277,28 +234,13 @@ const Dashboard = ({
           </div>
         </div>
       </header>
-      
+
       <nav className="dashboard-nav">
-        <button
-          onClick={() => setActiveTab('dashboard')}
-          className={`nav-button ${activeTab === 'dashboard' ? 'nav-button-active' : ''}`}
-        >
-          Dashboard
-        </button>
-        <button
-          onClick={() => setActiveTab('analysis')}
-          className={`nav-button ${activeTab === 'analysis' ? 'nav-button-active' : ''}`}
-        >
-          Data Analysis
-        </button>
-        <button
-          onClick={() => setActiveTab('upload')}
-          className={`nav-button ${activeTab === 'upload' ? 'nav-button-active' : ''}`}
-        >
-          Upload Data
-        </button>
+        <button onClick={() => setActiveTab('dashboard')} className={`nav-button ${activeTab === 'dashboard' ? 'nav-button-active' : ''}`}>Dashboard</button>
+        <button onClick={() => setActiveTab('analysis')} className={`nav-button ${activeTab === 'analysis' ? 'nav-button-active' : ''}`}>Data Analysis</button>
+        <button onClick={() => setActiveTab('upload')} className={`nav-button ${activeTab === 'upload' ? 'nav-button-active' : ''}`}>Upload Data</button>
       </nav>
-      
+
       <main className="dashboard-main">
         {isLoading ? (
           <div className="loading-spinner">
@@ -328,7 +270,7 @@ const Dashboard = ({
           </>
         )}
       </main>
-      
+
       <footer className="dashboard-footer">
         <p>© 2025 Block Trading Newsletter Dashboard</p>
       </footer>
