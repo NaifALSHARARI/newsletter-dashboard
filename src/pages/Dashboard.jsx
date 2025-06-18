@@ -94,7 +94,7 @@ const Dashboard = ({
     }
     
     return null;
-  }, [selectedMonth, globalData, getAvailableMonths]);
+  }, [globalData, getAvailableMonths]);
 
   // عرض أفضل الشركات بالبيانات الحقيقية
   const renderTopCompanies = useCallback(() => {
@@ -292,7 +292,6 @@ const Dashboard = ({
     getStatValue, 
     setSelectedMonth, 
     setActiveTab,
-    selectedMonth,
     selectedTabMonth,
     setSelectedTabMonth,
     renderTopCompanies
