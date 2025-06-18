@@ -1,3 +1,4 @@
+// بداية الملف
 import React, { useState, useEffect, useCallback } from 'react';
 import ExcelAnalyzer from '../components/ExcelAnalyzer';
 import FileUpload from '../components/FileUpload';
@@ -19,7 +20,6 @@ const Dashboard = ({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTabMonth, setSelectedTabMonth] = useState(null);
 
-  // تحديث البيانات عند تغيير الشهر المحدد
   useEffect(() => {
     if (selectedMonth && globalData[selectedMonth]) {
       const timeoutId = setTimeout(() => {
@@ -30,7 +30,6 @@ const Dashboard = ({
     }
   }, [selectedMonth, globalData]);
 
-  // تحديث التاب المحدد عند تغيير البيانات المتاحة
   useEffect(() => {
     const availableMonths = getAvailableMonths();
     if (availableMonths.length > 0 && !selectedTabMonth) {
@@ -38,7 +37,7 @@ const Dashboard = ({
     }
   }, [getAvailableMonths, selectedTabMonth]);
 
-  // معالجة البيانات المرفوعة
+  // ✅ تم التعديل هنا بإضافة selectedMonth
   const handleDataProcessed = useCallback((newData, month) => {
     console.log('Processed data received:', newData, 'for month:', month);
     
@@ -58,9 +57,8 @@ const Dashboard = ({
       setActiveTab('analysis');
       setIsLoading(false);
     }, 800);
-  }, [storeDataByMonth]);
+  }, [storeDataByMonth, selectedMonth]); // <-- ✅ تمت الإضافة هنا
 
-  // تنسيق الأرقام للعرض
   const formatNumber = useCallback((num) => {
     if (!num) return "N/A";
     const number = parseFloat(num.toString().replace(/,/g, ''));
@@ -74,19 +72,16 @@ const Dashboard = ({
     return number.toLocaleString();
   }, []);
 
-  // الحصول على قيمة الإحصائية من rawStats
   const getStatValue = useCallback((monthData, statKey) => {
     if (!monthData || !monthData.rawStats) return "N/A";
     return monthData.rawStats[statKey] || "N/A";
   }, []);
 
-  // الحصول على البيانات الحقيقية للشهر الحالي أو آخر شهر متاح
   const getCurrentMonthData = useCallback(() => {
     if (selectedMonth && globalData[selectedMonth]) {
       return globalData[selectedMonth];
     }
     
-    // إذا لم يكن هناك شهر محدد، استخدم آخر شهر متاح
     const availableMonths = getAvailableMonths();
     if (availableMonths.length > 0) {
       const latestMonth = availableMonths[availableMonths.length - 1];
@@ -94,9 +89,8 @@ const Dashboard = ({
     }
     
     return null;
-  }, [globalData, getAvailableMonths]);
+  }, [globalData, getAvailableMonths, selectedMonth]);
 
-  // عرض أفضل الشركات بالبيانات الحقيقية
   const renderTopCompanies = useCallback(() => {
     const currentData = getCurrentMonthData();
     
@@ -150,18 +144,14 @@ const Dashboard = ({
     );
   }, [getCurrentMonthData, formatNumber]);
 
-  // محتوى Dashboard الرئيسي مع البيانات الحقيقية
   const renderMainDashboard = useCallback(() => {
     const availableMonths = getAvailableMonths();
     
     return (
       <div className="main-dashboard-content">
-        {/* ملخص البيانات المرفوعة كتابات */}
         {availableMonths.length > 0 && (
           <div className="dashboard-card full-width uploaded-data-summary">
             <h3>📋 Uploaded Data Summary</h3>
-            
-            {/* تابات الشهور */}
             <div className="months-tabs">
               {availableMonths.map(month => (
                 <button
@@ -185,54 +175,25 @@ const Dashboard = ({
                 </button>
               ))}
             </div>
-            
-            {/* محتوى التاب المحدد */}
             {selectedTabMonth && (
               <div className="month-tab-content">
                 <div className="month-stats-grid">
-                  <div className="stat-item">
-                    <span className="stat-label">Average Volume Traded</span>
-                    <span className="stat-value">
-                      {formatNumber(getStatValue(getDataByMonth(selectedTabMonth), "Average Volume Traded"))}
-                    </span>
-                  </div>
-                  
-                  <div className="stat-item">
-                    <span className="stat-label">Average Value Traded</span>
-                    <span className="stat-value">
-                      {formatNumber(getStatValue(getDataByMonth(selectedTabMonth), "Average Value Traded"))}
-                    </span>
-                  </div>
-                  
-                  <div className="stat-item">
-                    <span className="stat-label">Sum Volume Traded</span>
-                    <span className="stat-value">
-                      {formatNumber(getStatValue(getDataByMonth(selectedTabMonth), "Sum Volume Traded"))}
-                    </span>
-                  </div>
-                  
-                  <div className="stat-item">
-                    <span className="stat-label">Sum Value Traded</span>
-                    <span className="stat-value">
-                      {formatNumber(getStatValue(getDataByMonth(selectedTabMonth), "Sum Value Traded"))}
-                    </span>
-                  </div>
-                  
-                  <div className="stat-item">
-                    <span className="stat-label">Number of Companies</span>
-                    <span className="stat-value">
-                      {formatNumber(getStatValue(getDataByMonth(selectedTabMonth), "Number of Companies"))}
-                    </span>
-                  </div>
-                  
-                  <div className="stat-item">
-                    <span className="stat-label">Number of Deals</span>
-                    <span className="stat-value">
-                      {formatNumber(getStatValue(getDataByMonth(selectedTabMonth), "Number of Deals"))}
-                    </span>
-                  </div>
+                  {[
+                    "Average Volume Traded",
+                    "Average Value Traded",
+                    "Sum Volume Traded",
+                    "Sum Value Traded",
+                    "Number of Companies",
+                    "Number of Deals"
+                  ].map(statKey => (
+                    <div className="stat-item" key={statKey}>
+                      <span className="stat-label">{statKey}</span>
+                      <span className="stat-value">
+                        {formatNumber(getStatValue(getDataByMonth(selectedTabMonth), statKey))}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-                
                 <div className="tab-actions">
                   <button 
                     className="analyze-month-btn"
@@ -249,7 +210,6 @@ const Dashboard = ({
           </div>
         )}
 
-        {/* Top Companies بالبيانات الحقيقية */}
         {renderTopCompanies()}
 
         <div className="dashboard-card full-width">
@@ -270,7 +230,6 @@ const Dashboard = ({
           </div>
         </div>
 
-        {/* Call to Action */}
         {availableMonths.length === 0 && (
           <div className="dashboard-card full-width cta-card">
             <h3>🚀 Start Analyzing Your Data</h3>
@@ -332,14 +291,6 @@ const Dashboard = ({
         >
           Data Analysis
         </button>
-        {/* 
-        <button
-          onClick={() => setActiveTab('reports')}
-          className={`nav-button ${activeTab === 'reports' ? 'nav-button-active' : ''}`}
-        >
-          Reports
-        </button>
-        */}
         <button
           onClick={() => setActiveTab('upload')}
           className={`nav-button ${activeTab === 'upload' ? 'nav-button-active' : ''}`}
