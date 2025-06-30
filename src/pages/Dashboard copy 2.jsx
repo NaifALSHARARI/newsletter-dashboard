@@ -71,9 +71,67 @@ const Dashboard = ({
     return monthData.rawStats[statKey] || "N/A";
   }, []);
 
+  const getCurrentMonthData = useCallback(() => {
+    if (selectedMonth && globalData[selectedMonth]) {
+      return globalData[selectedMonth];
+    }
+    const availableMonths = getAvailableMonths();
+    if (availableMonths.length > 0) {
+      const latestMonth = availableMonths[availableMonths.length - 1];
+      return globalData[latestMonth];
+    }
+    return null;
+  }, [globalData, getAvailableMonths, selectedMonth]);
 
+  const renderTopCompanies = useCallback(() => {
+    const currentData = getCurrentMonthData();
+    if (!currentData?.rawStats?.topValueCompanies) {
+      return (
+        <div className="dashboard-card top-stocks">
+          <h3>🏆 Top Companies by Value</h3>
+          <div className="no-data-message">
+            <p>No company data available</p>
+          </div>
+        </div>
+      );
+    }
 
+    const topCompanies = currentData.rawStats.topValueCompanies.slice(0, 5);
 
+    return (
+      <div className="dashboard-card top-stocks">
+        <h3>🏆 Top Companies by Value</h3>
+        <div className="companies-table">
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
+                <th style={{ textAlign: 'left', padding: '10px', fontWeight: '600' }}>Company</th>
+                <th style={{ textAlign: 'right', padding: '10px', fontWeight: '600' }}>Volume</th>
+                <th style={{ textAlign: 'right', padding: '10px', fontWeight: '600' }}>Value</th>
+                <th style={{ textAlign: 'right', padding: '10px', fontWeight: '600' }}>Deals</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topCompanies.map((company, index) => (
+                <tr key={index} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                  <td style={{ padding: '12px 10px', fontWeight: '500' }}>{company.name}</td>
+                  <td style={{ padding: '12px 10px', textAlign: 'right', color: '#666' }}>
+                    {formatNumber(company.volume)}
+                  </td>
+                  <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: '600', color: '#00695c' }}>
+                    {formatNumber(company.value)}
+                  </td>
+                  <td style={{ padding: '12px 10px', textAlign: 'right', color: '#666' }}>
+                    {company.deals}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }, [getCurrentMonthData, formatNumber]);
 
   const renderMainDashboard = useCallback(() => {
     const availableMonths = getAvailableMonths();
@@ -129,6 +187,8 @@ const Dashboard = ({
           </div>
         )}
 
+        {renderTopCompanies()}
+
         <div className="dashboard-card full-width">
           <h3>💡 Tips & Recommendations</h3>
           <div className="tips-grid">
@@ -150,7 +210,7 @@ const Dashboard = ({
   }, [
     getAvailableMonths, getDataByMonth, formatNumber,
     getStatValue, setSelectedMonth, setActiveTab,
-    selectedTabMonth, setSelectedTabMonth
+    selectedTabMonth, setSelectedTabMonth, renderTopCompanies
   ]);
 
   return (
