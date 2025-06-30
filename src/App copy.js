@@ -7,6 +7,7 @@ function App() {
   // Global state to store all uploaded data across tabs
   const [globalData, setGlobalData] = useState({});
   const [selectedMonth, setSelectedMonth] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   /**
@@ -14,6 +15,7 @@ function App() {
    */
   const loadInitialData = useCallback(async () => {
     try {
+      setIsLoading(true);
       setError(null);
       
       const data = await databaseService.getAllData();
@@ -23,6 +25,8 @@ function App() {
     } catch (error) {
       console.error('خطأ في تحميل البيانات الأولية:', error);
       setError('فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -139,7 +143,20 @@ function App() {
     }
   };
 
-  // عرض حالة الخطأ فقط
+  // عرض حالة التحميل
+  if (isLoading) {
+    return (
+      <div className="app-loading">
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <h2>جارٍ تحميل التطبيق...</h2>
+          <p>يتم استرجاع البيانات من قاعدة البيانات</p>
+        </div>
+      </div>
+    );
+  }
+
+  // عرض حالة الخطأ
   if (error) {
     return (
       <div className="app-error">
@@ -167,6 +184,7 @@ function App() {
         getDataByMonth={getDataByMonth}
         getAvailableMonths={getAvailableMonths}
         deleteMonthData={deleteMonthData}
+        isLoading={isLoading}
         error={error}
       />
     </div>
