@@ -170,7 +170,7 @@ const Dashboard = ({
             <h1 className="logo" style={{ display: 'none' }}>AWRAAQI</h1>
           </div>
           <div className="title-section">
-            <h1 className="dashboard-title">Block Data</h1>
+            <h1 className="dashboard-title">Data Statistics</h1>
           </div>
         </div>
       </header>
