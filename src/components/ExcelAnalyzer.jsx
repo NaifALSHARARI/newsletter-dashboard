@@ -43,7 +43,7 @@ const ExcelAnalyzer = ({
         data: [],
         xAxisKey: 'name',
         yAxisKey: 'value',
-        yAxisLabel: 'Value Traded ($)'
+        yAxisLabel: 'Value Traded'
       }));
       return;
     }
@@ -59,7 +59,7 @@ const ExcelAnalyzer = ({
       data: valueCompanies,
       xAxisKey: 'name',
       yAxisKey: 'value',
-      yAxisLabel: 'Value Traded ($)'
+      yAxisLabel: 'Value Traded'
     }));
   }, []);
   
@@ -224,6 +224,21 @@ const ExcelAnalyzer = ({
     }
     return String(value);
   };
+
+  // Format chart values with K/M abbreviations
+  const formatChartValue = (value) => {
+    if (value === undefined || value === null) return "0";
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return "0";
+    
+    if (numValue >= 1000000) {
+      return `${(numValue / 1000000).toFixed(1)}M`;
+    } else if (numValue >= 1000) {
+      return `${(numValue / 1000).toFixed(1)}K`;
+    } else {
+      return numValue.toString();
+    }
+  };
   
   // ===== RENDER FUNCTIONS =====
   
@@ -248,7 +263,10 @@ const ExcelAnalyzer = ({
           <BarChart data={chartData.data} className="chart">
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey={chartData.xAxisKey} />
-            <YAxis label={{ value: chartData.yAxisLabel, angle: -90, position: 'insideLeft' }} />
+            <YAxis 
+              label={{ value: chartData.yAxisLabel, angle: -90, position: 'insideLeft', offset: -19 }}
+              tickFormatter={formatChartValue}
+            />
             <Tooltip 
               formatter={(value) => formatValue(value)} 
               labelFormatter={(value) => `${value}`}
@@ -268,7 +286,10 @@ const ExcelAnalyzer = ({
           <LineChart data={chartData.data} className="chart">
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey={chartData.xAxisKey} />
-            <YAxis label={{ value: chartData.yAxisLabel, angle: -90, position: 'insideLeft' }} />
+            <YAxis 
+              label={{ value: chartData.yAxisLabel, angle: -90, position: 'insideLeft', offset: -10 }}
+              tickFormatter={formatChartValue}
+            />
             <Tooltip 
               formatter={(value) => formatValue(value)}
               labelFormatter={(value) => `${value}`}
